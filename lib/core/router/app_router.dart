@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'routes.dart';
+import '../../features/author/author_page.dart';
+import '../../features/home/home_page.dart';
 import '../../features/splash/splash_page.dart';
+import '../../features/poem_detail/poem_detail_page.dart';
 
 /// 全局 Navigator Key
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -29,23 +32,22 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.home,
               name: 'home',
-              builder: (context, state) =>
-                  const _PlaceholderPage(title: '首页'),
+              builder: (context, state) => const HomePage(),
               routes: [
                 GoRoute(
                   path: 'poem/:id',
                   name: 'poemDetail',
                   parentNavigatorKey: rootNavigatorKey,
-                  builder: (context, state) => _PlaceholderPage(
-                    title: '诗词详情 ${state.pathParameters['id']}',
+                  builder: (context, state) => PoemDetailPage(
+                    poemId: state.pathParameters['id']!,
                   ),
                 ),
                 GoRoute(
                   path: 'author/:id',
                   name: 'authorDetail',
                   parentNavigatorKey: rootNavigatorKey,
-                  builder: (context, state) => _PlaceholderPage(
-                    title: '作者页 ${state.pathParameters['id']}',
+                  builder: (context, state) => AuthorPage(
+                    authorId: state.pathParameters['id']!,
                   ),
                 ),
               ],
@@ -104,8 +106,8 @@ final GoRouter appRouter = GoRouter(
                   path: 'poem/:id',
                   name: 'searchPoemDetail',
                   parentNavigatorKey: rootNavigatorKey,
-                  builder: (context, state) => _PlaceholderPage(
-                    title: '诗词详情 ${state.pathParameters['id']}',
+                  builder: (context, state) => PoemDetailPage(
+                    poemId: state.pathParameters['id']!,
                   ),
                 ),
               ],
