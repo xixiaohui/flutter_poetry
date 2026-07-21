@@ -9,12 +9,14 @@ class PoetryCard extends StatelessWidget {
   final Poem poem;
   final VoidCallback? onTap;
   final VoidCallback? onFavorite;
+  final String? heroTag;
 
   const PoetryCard({
     super.key,
     required this.poem,
     this.onTap,
     this.onFavorite,
+    this.heroTag,
   });
 
   @override
@@ -23,7 +25,7 @@ class PoetryCard extends StatelessWidget {
         ? '${poem.content.substring(0, 60)}…'
         : poem.content;
 
-    return Card(
+    final card = Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -80,7 +82,7 @@ class PoetryCard extends StatelessWidget {
                     ),
                     child: Text(
                       poem.dynasty.name,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 11,
                         color: AppColors.inkTertiary,
                       ),
@@ -100,5 +102,10 @@ class PoetryCard extends StatelessWidget {
         ),
       ),
     );
+
+    if (heroTag != null) {
+      return Hero(tag: heroTag!, child: card);
+    }
+    return card;
   }
 }
