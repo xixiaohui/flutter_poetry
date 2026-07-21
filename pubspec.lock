@@ -341,10 +341,18 @@ packages:
     dependency: "direct main"
     description:
       name: flex_color_scheme
-      sha256: "36da82cb36840b886ba9d73b609423b5da696678845e73db9f99cd4b047ff7ac"
+      sha256: "03fd5e68eff346a042026577f54be0cd4507e565cd86390b12c0aca1c5d6cb0b"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.1.1"
+    version: "8.0.0"
+  flex_seed_scheme:
+    dependency: "direct main"
+    description:
+      name: flex_seed_scheme
+      sha256: "828291a5a4d4283590541519d8b57821946660ac61d2e07d955f81cfcab22e5d"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.6.1"
   flutter:
     dependency: "direct main"
     description: flutter
