@@ -1,4 +1,5 @@
 import 'package:isar_community/isar.dart';
+import '../../core/constants/api_constants.dart';
 import '../../core/database/app_database.dart';
 import '../api/poetry_api_client.dart';
 import '../api/search_type.dart';
@@ -16,7 +17,7 @@ final class PoemService {
   /// 获取诗词列表 (API first, cache fallback)
   Future<PaginatedResponse<Poem>> getPoems({
     int page = 1,
-    int pageSize = 20,
+    int pageSize = ApiConstants.defaultPageSize,
     String? dynasty,
     String? category,
   }) async {
@@ -43,7 +44,7 @@ final class PoemService {
     required String query,
     SearchType type = SearchType.all,
     int page = 1,
-    int pageSize = 20,
+    int pageSize = ApiConstants.defaultPageSize,
   }) async {
     return _api.searchPoems(
       query: query,
@@ -105,7 +106,7 @@ final class PoemService {
   /// 从缓存读取诗词列表
   Future<PaginatedResponse<Poem>> _getCachedPoems({
     int page = 1,
-    int pageSize = 20,
+    int pageSize = ApiConstants.defaultPageSize,
   }) async {
     final offset = (page - 1) * pageSize;
     final caches = await _isar.poemCaches

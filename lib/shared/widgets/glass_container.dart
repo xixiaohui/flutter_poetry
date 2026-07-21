@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 
 /// 毛玻璃效果容器
@@ -34,12 +33,15 @@ class GlassContainer extends StatelessWidget {
       case GlassIntensity.light:
         sigma = 10;
         opacity = 0.6;
+        break;
       case GlassIntensity.medium:
         sigma = 20;
         opacity = 0.4;
+        break;
       case GlassIntensity.heavy:
         sigma = 30;
         opacity = 0.2;
+        break;
     }
 
     return ClipRRect(
@@ -51,8 +53,9 @@ class GlassContainer extends StatelessWidget {
           height: height,
           padding: padding ?? AppSpacing.cardPadding,
           decoration: BoxDecoration(
-            color: (isDark ? AppColors.glassDark : AppColors.glassLight)
-                .withValues(alpha: opacity),
+            color: isDark
+                ? const Color(0xFF1C1C1A).withValues(alpha: opacity)
+                : Colors.white.withValues(alpha: opacity),
             borderRadius: BorderRadius.circular(borderRadius),
             border: Border.all(
               color: Colors.white.withValues(alpha: 0.15),

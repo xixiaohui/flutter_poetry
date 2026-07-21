@@ -99,6 +99,16 @@ final GoRouter appRouter = GoRouter(
               name: 'search',
               builder: (context, state) =>
                   const _PlaceholderPage(title: '搜索'),
+              routes: [
+                GoRoute(
+                  path: 'poem/:id',
+                  name: 'searchPoemDetail',
+                  parentNavigatorKey: rootNavigatorKey,
+                  builder: (context, state) => _PlaceholderPage(
+                    title: '诗词详情 ${state.pathParameters['id']}',
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -183,8 +193,8 @@ class _MainShell extends StatelessWidget {
             label: '收藏',
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings),
             label: '设置',
           ),
         ],
