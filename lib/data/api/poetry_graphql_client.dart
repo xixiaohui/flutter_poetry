@@ -27,6 +27,8 @@ final class PoetryGraphqlClient {
       data: {'query': query},
     );
 
+    _checkGraphQlErrors(response.data);
+
     return response.data['data']['statistics'] as Map<String, dynamic>;
   }
 
@@ -55,11 +57,22 @@ final class PoetryGraphqlClient {
       },
     );
 
+    _checkGraphQlErrors(response.data);
+
     final edges =
         response.data['data']['poemsByDynasty']['edges'] as List;
     return edges
         .map((edge) =>
             Poem.fromJson(edge['node'] as Map<String, dynamic>))
         .toList();
+  }
+
+  /// 检查 GraphQL 响应中是否存在 errors
+  void _checkGraphQlErrors(Map<String, dynamic> data) {
+    if (data['errors'] != null) {
+      final errors = data['errors'] as List;
+      final message = errors.map((e) => e['message']).join('; ');
+      throw Exception('GraphQL error: $message');
+    }
   }
 }

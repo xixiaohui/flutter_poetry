@@ -31,6 +31,7 @@ dependencies:
   intl: ^0.19.0
   cupertino_icons: ^1.0.8
   flex_seed_scheme: ^3.6.1
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
