@@ -46,6 +46,21 @@ final class PoemRepository {
     return _service.getRandomPoem(dynasty: dynasty, category: category);
   }
 
+  /// 获取诗词详情
+  Future<Poem> getPoemById(String id) async {
+    return _service.getPoemById(id);
+  }
+
+  /// 按作者获取诗词
+  Future<PaginatedResponse<Poem>> getPoemsByAuthor(
+    String authorId, {
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    return _service.getPoemsByAuthor(authorId,
+        page: page, pageSize: pageSize);
+  }
+
   /// 添加收藏
   Future<void> addFavorite(Poem poem) async {
     final isar = AppDatabase.instance.isar;

@@ -22,6 +22,10 @@ abstract final class ApiConstants {
   static const Duration deepseekConnectTimeout = Duration(seconds: 30);
   static const Duration deepseekReceiveTimeout = Duration(seconds: 60);
 
+  // ── 详情端点 ──
+  static String poemDetailEndpoint(String id) => '/api/v1/poems/$id';
+  static String authorDetailEndpoint(String id) => '/api/v1/authors/$id';
+
   // ── 分页默认值 ──
   static const int defaultPageSize = 20;
   static const int maxPageSize = 100;

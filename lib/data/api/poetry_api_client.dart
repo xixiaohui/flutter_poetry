@@ -128,4 +128,43 @@ final class PoetryApiClient {
         .map((json) => Dynasty.fromJson(json as Map<String, dynamic>))
         .toList();
   }
+
+  /// 获取单首诗词详情
+  Future<Poem> getPoemById(String id) async {
+    final response = await _dio.get('/api/v1/poems/$id');
+    return Poem.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// 获取作者详情
+  Future<Author> getAuthorById(String id) async {
+    final response = await _dio.get('/api/v1/authors/$id');
+    return Author.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// 按作者获取诗词
+  Future<PaginatedResponse<Poem>> getPoemsByAuthor(
+    String authorId, {
+    int page = 1,
+    int pageSize = ApiConstants.defaultPageSize,
+  }) async {
+    final response = await _dio.get(
+      ApiConstants.poemsEndpoint,
+      queryParameters: {
+        'author': authorId,
+        'page': page,
+        'page_size': pageSize,
+      },
+    );
+    final data = response.data;
+    return PaginatedResponse(
+      data: (data['data'] as List)
+          .map((json) => Poem.fromJson(json as Map<String, dynamic>))
+          .toList(),
+      total: data['total'] as int,
+      page: data['page'] as int,
+      pageSize: data['page_size'] as int,
+      hasMore: (data['page'] as int) * (data['page_size'] as int) <
+          (data['total'] as int),
+    );
+  }
 }

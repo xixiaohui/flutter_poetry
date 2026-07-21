@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:isar_community/isar.dart';
 import '../../core/constants/api_constants.dart';
 import '../../core/database/app_database.dart';
@@ -137,5 +139,43 @@ final class PoemService {
       pageSize: pageSize,
       hasMore: offset + pageSize < total,
     );
+  }
+
+  /// 获取单首诗词详情 (API-first, cache fallback)
+  Future<Poem> getPoemById(String id) async {
+    try {
+      final poem = await _api.getPoemById(id);
+      // Cache to PoemDetailCache
+      _cacheDetail(poem);
+      return poem;
+    } on Exception {
+      // Try cache fallback
+      final cached =
+          await _isar.poemDetailCaches.where().poemIdEqualTo(id).findFirst();
+      if (cached != null) {
+        return Poem.fromJson(
+            jsonDecode(cached.fullJson) as Map<String, dynamic>);
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> _cacheDetail(Poem poem) async {
+    final cache = PoemDetailCache()
+      ..poemId = poem.id
+      ..fullJson = jsonEncode(poem.toJson())
+      ..cachedAt = DateTime.now();
+    await _isar.writeTxn(() async {
+      await _isar.poemDetailCaches.put(cache);
+    });
+  }
+
+  /// 按作者获取诗词
+  Future<PaginatedResponse<Poem>> getPoemsByAuthor(
+    String authorId, {
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    return _api.getPoemsByAuthor(authorId, page: page, pageSize: pageSize);
   }
 }

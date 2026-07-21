@@ -13,4 +13,9 @@ final class AuthorService {
   }) async {
     return _api.getAuthors(page: page, pageSize: pageSize);
   }
+
+  /// 获取作者详情
+  Future<Author> getAuthorById(String id) async {
+    return _api.getAuthorById(id);
+  }
 }
