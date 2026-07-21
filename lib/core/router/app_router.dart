@@ -50,6 +50,12 @@ final GoRouter appRouter = GoRouter(
                     authorId: state.pathParameters['id']!,
                   ),
                 ),
+                GoRoute(
+                  path: 'daily-poem',
+                  name: 'dailyPoem',
+                  parentNavigatorKey: rootNavigatorKey,
+                  builder: (context, state) => const _PlaceholderPage(title: '每日一首'),
+                ),
               ],
             ),
           ],

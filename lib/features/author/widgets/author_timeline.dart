@@ -33,7 +33,7 @@ class AuthorTimeline extends StatelessWidget {
           isAccent: true,
           leading: dynasty.name,
           trailing: dynasty.startYear != null && dynasty.endYear != null
-              ? '${dynasty.startYear}年 — ${dynasty.endYear}年'
+              ? '$dynasty.startYear年 — $dynasty.endYear年'
               : null,
         ),
         // 生卒估算节点
@@ -43,7 +43,7 @@ class AuthorTimeline extends StatelessWidget {
             isLast: true,
             isAccent: false,
             leading: '生卒',
-            trailing: '约 ${estimatedBirth}年 — ${estimatedDeath}年',
+            trailing: '约 $estimatedBirth年 — $estimatedDeath年',
           ),
       ],
     );
