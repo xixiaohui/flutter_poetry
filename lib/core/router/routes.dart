@@ -8,11 +8,11 @@ abstract final class AppRoutes {
   static const String settings = '/settings';
 
   // ── 详情页 ──
-  static const String poemDetail = '/poem/:id';
-  static String poemById(String id) => '/poem/$id';
+  static const String poemDetail = '/home/poem/:id';
+  static String poemById(String id) => '/home/poem/$id';
 
-  static const String authorDetail = '/author/:id';
-  static String authorById(String id) => '/author/$id';
+  static const String authorDetail = '/home/author/:id';
+  static String authorById(String id) => '/home/author/$id';
 
   // ── 独立页 ──
   static const String splash = '/splash';

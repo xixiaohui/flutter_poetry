@@ -4,8 +4,6 @@ import 'routes.dart';
 
 /// 全局 Navigator Key
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
-final GlobalKey<NavigatorState> shellNavigatorKey =
-    GlobalKey<NavigatorState>();
 
 /// go_router 配置 — 懒加载所有页面路由
 final GoRouter appRouter = GoRouter(
@@ -61,6 +59,34 @@ final GoRouter appRouter = GoRouter(
               name: 'discover',
               builder: (context, state) =>
                   const _PlaceholderPage(title: '发现'),
+              routes: [
+                GoRoute(
+                  path: 'category/:id',
+                  name: 'category',
+                  builder: (context, state) => _PlaceholderPage(
+                    title: '分类 ${state.pathParameters['id']}',
+                  ),
+                ),
+                GoRoute(
+                  path: 'dynasty/:id',
+                  name: 'dynastyTimeline',
+                  builder: (context, state) => _PlaceholderPage(
+                    title: '朝代 ${state.pathParameters['id']}',
+                  ),
+                ),
+                GoRoute(
+                  path: 'fly-flower',
+                  name: 'flyFlower',
+                  builder: (context, state) =>
+                      const _PlaceholderPage(title: '飞花令'),
+                ),
+                GoRoute(
+                  path: 'chain',
+                  name: 'chain',
+                  builder: (context, state) =>
+                      const _PlaceholderPage(title: '接龙'),
+                ),
+              ],
             ),
           ],
         ),
@@ -94,6 +120,20 @@ final GoRouter appRouter = GoRouter(
               name: 'settings',
               builder: (context, state) =>
                   const _PlaceholderPage(title: '设置'),
+              routes: [
+                GoRoute(
+                  path: 'font',
+                  name: 'fontSettings',
+                  builder: (context, state) =>
+                      const _PlaceholderPage(title: '字体设置'),
+                ),
+                GoRoute(
+                  path: 'theme',
+                  name: 'themeSettings',
+                  builder: (context, state) =>
+                      const _PlaceholderPage(title: '主题设置'),
+                ),
+              ],
             ),
           ],
         ),
