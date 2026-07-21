@@ -19,6 +19,8 @@ abstract final class ApiConstants {
   // ── 超时配置 ──
   static const Duration connectTimeout = Duration(seconds: 10);
   static const Duration receiveTimeout = Duration(seconds: 15);
+  static const Duration deepseekConnectTimeout = Duration(seconds: 30);
+  static const Duration deepseekReceiveTimeout = Duration(seconds: 60);
 
   // ── 分页默认值 ──
   static const int defaultPageSize = 20;

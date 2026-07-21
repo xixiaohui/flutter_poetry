@@ -26,7 +26,7 @@ final class DioClient {
     ));
 
     dio.interceptors.addAll([
-      _LogInterceptor(),
+      LogInterceptor(),
       _ErrorInterceptor(),
     ]);
 
@@ -36,8 +36,8 @@ final class DioClient {
   static Dio _createDeepseekDio() {
     final dio = Dio(BaseOptions(
       baseUrl: ApiConstants.deepseekBaseUrl,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 60),
+      connectTimeout: ApiConstants.deepseekConnectTimeout,
+      receiveTimeout: ApiConstants.deepseekReceiveTimeout,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -45,25 +45,11 @@ final class DioClient {
     ));
 
     dio.interceptors.addAll([
-      _LogInterceptor(),
+      LogInterceptor(),
       _ErrorInterceptor(),
     ]);
 
     return dio;
-  }
-}
-
-/// 日志拦截器 — 开发调试用
-final class _LogInterceptor extends Interceptor {
-  @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    // debugPrint only in debug mode; handled by Dio's LogInterceptor
-    handler.next(options);
-  }
-
-  @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    handler.next(err);
   }
 }
 
@@ -80,6 +66,7 @@ final class _ErrorInterceptor extends Interceptor {
           type: err.type,
           message: '网络连接超时，请检查网络后重试',
           error: err.error,
+          stackTrace: err.stackTrace,
         );
       case DioExceptionType.connectionError:
         err = DioException(
@@ -88,6 +75,7 @@ final class _ErrorInterceptor extends Interceptor {
           type: err.type,
           message: '网络不可用，请检查网络连接',
           error: err.error,
+          stackTrace: err.stackTrace,
         );
       default:
         break;
