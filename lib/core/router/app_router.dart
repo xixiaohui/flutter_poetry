@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'routes.dart';
+import '../../features/splash/splash_page.dart';
 
 /// 全局 Navigator Key
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -13,7 +14,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/splash',
       name: 'splash',
-      builder: (context, state) => const _PlaceholderPage(title: '启动页'),
+      builder: (context, state) => const SplashPage(),
     ),
 
     // ── ShellRoute: 底部 TabBar 主框架 ──
