@@ -1,10 +1,7 @@
 /// API 端点及配置常量
 abstract final class ApiConstants {
-  /// chinese-poetry-api 基础 URL
-  static const String poetryBaseUrl = 'https://poetry.palemoky.com';
-
-  /// DeepSeek API 基础 URL
-  static const String deepseekBaseUrl = 'https://api.deepseek.com';
+  /// Poetry Gateway 基础 URL
+  static const String gatewayBaseUrl = 'http://208.167.233.53:8080';
 
   // ── REST 端点 ──
   static const String poemsEndpoint = '/api/v1/poems';
@@ -13,14 +10,20 @@ abstract final class ApiConstants {
   static const String authorsEndpoint = '/api/v1/authors';
   static const String dynastiesEndpoint = '/api/v1/dynasties';
 
-  // ── GraphQL 端点 ──
-  static const String graphqlEndpoint = '/graphql';
+  // ── 聚合端点 ──
+  static const String homeEndpoint = '/api/v1/home';
+
+  // ── AI 端点 ──
+  static const String aiAnalyzeEndpoint = '/api/v1/ai/analyze';
+  static const String aiIllustrationEndpoint = '/api/v1/ai/illustration';
+
+  // ── 用户端点（预留） ──
+  static const String favoritesEndpoint = '/api/v1/favorites';
+  static const String historyEndpoint = '/api/v1/history';
 
   // ── 超时配置 ──
   static const Duration connectTimeout = Duration(seconds: 10);
   static const Duration receiveTimeout = Duration(seconds: 15);
-  static const Duration deepseekConnectTimeout = Duration(seconds: 30);
-  static const Duration deepseekReceiveTimeout = Duration(seconds: 60);
 
   // ── 详情端点 ──
   static String poemDetailEndpoint(String id) => '/api/v1/poems/$id';
