@@ -1,22 +1,21 @@
-import '../api/deepseek_api_client.dart';
+import '../api/gateway_api_client.dart';
 import '../models/poem.dart';
 
-/// AI 服务 — 统一管理 DeepSeek API 调用
+/// AI 服务 — 通过 Poetry Gateway 调用 AI
 final class AIService {
-  final DeepSeekApiClient _client = DeepSeekApiClient();
-
-  /// 设置 API Key
-  void configure({required String apiKey}) {
-    _client.setApiKey(apiKey);
-  }
+  final GatewayApiClient _client = GatewayApiClient();
 
   /// AI 赏析
+  ///
+  /// 签名保持接收 [Poem] 以兼容上层，内部提取 poemId 调用 Gateway。
   Future<String> analyze(Poem poem) async {
-    return _client.analyzePoem(poem);
+    return _client.analyzePoem(poem.id);
   }
 
   /// AI 配图 prompt
+  ///
+  /// 签名保持接收 [Poem] 以兼容上层，内部提取 poemId 调用 Gateway。
   Future<String> generateIllustrationPrompt(Poem poem) async {
-    return _client.generateIllustrationPrompt(poem);
+    return _client.generateIllustration(poem.id);
   }
 }
