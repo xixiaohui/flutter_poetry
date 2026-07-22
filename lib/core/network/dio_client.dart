@@ -1,43 +1,20 @@
 import 'package:dio/dio.dart';
 import '../constants/api_constants.dart';
 
-/// Dio HTTP 客户端单例 — 统一管理所有网络请求配置
+/// Dio HTTP 客户端单例 — 统一指向 Poetry Gateway
 final class DioClient {
   DioClient._();
 
-  static final Dio _poetryDio = _createPoetryDio();
-  static final Dio _deepseekDio = _createDeepseekDio();
+  static final Dio _instance = _createDio();
 
-  /// 诗词 API 客户端
-  static Dio get poetry => _poetryDio;
+  /// 共享 Dio 实例
+  static Dio get instance => _instance;
 
-  /// DeepSeek AI API 客户端
-  static Dio get deepseek => _deepseekDio;
-
-  static Dio _createPoetryDio() {
+  static Dio _createDio() {
     final dio = Dio(BaseOptions(
-      baseUrl: ApiConstants.poetryBaseUrl,
+      baseUrl: ApiConstants.gatewayBaseUrl,
       connectTimeout: ApiConstants.connectTimeout,
       receiveTimeout: ApiConstants.receiveTimeout,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    ));
-
-    dio.interceptors.addAll([
-      LogInterceptor(),
-      _ErrorInterceptor(),
-    ]);
-
-    return dio;
-  }
-
-  static Dio _createDeepseekDio() {
-    final dio = Dio(BaseOptions(
-      baseUrl: ApiConstants.deepseekBaseUrl,
-      connectTimeout: ApiConstants.deepseekConnectTimeout,
-      receiveTimeout: ApiConstants.deepseekReceiveTimeout,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
