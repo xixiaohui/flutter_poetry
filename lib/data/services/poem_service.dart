@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:isar_community/isar.dart';
 import '../../core/constants/api_constants.dart';
 import '../../core/database/app_database.dart';
-import '../api/poetry_api_client.dart';
+import '../api/gateway_api_client.dart';
 import '../api/search_type.dart';
 import '../models/author.dart';
 import '../models/dynasty.dart';
@@ -13,7 +13,7 @@ import '../models/isar_models.dart';
 
 /// 诗词数据服务 — API 聚合 + 缓存管理
 final class PoemService {
-  final PoetryApiClient _api = PoetryApiClient();
+  final GatewayApiClient _api = GatewayApiClient();
   final Isar _isar = AppDatabase.instance.isar;
 
   /// 获取诗词列表 (API first, cache fallback)
