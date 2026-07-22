@@ -7,7 +7,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await AppDatabase.instance.init();
-  // TODO: await AiRepository.configure(apiKey: await SecureStorage.getDeepSeekKey());
 
   runApp(
     const ProviderScope(

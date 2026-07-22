@@ -11,11 +11,6 @@ AiRepository aiRepository(aiRepositoryRef) => AiRepository();
 final class AiRepository {
   final AIService _service = AIService();
 
-  /// 配置 API Key (应在应用启动时调用)
-  void configure({required String apiKey}) {
-    _service.configure(apiKey: apiKey);
-  }
-
   /// AI 赏析诗词
   Future<String> analyzePoem(Poem poem) async {
     return _service.analyze(poem);
