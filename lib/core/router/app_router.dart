@@ -8,6 +8,7 @@ import '../../features/home/home_page.dart';
 import '../../features/search/search_page.dart';
 import '../../features/settings/settings_page.dart';
 import '../../features/splash/splash_page.dart';
+import '../../features/stats/stats_page.dart';
 import '../../features/poem_detail/poem_detail_page.dart';
 
 /// 全局 Navigator Key
@@ -86,11 +87,7 @@ final GoRouter appRouter = GoRouter(
                   path: 'stats',
                   name: 'stats',
                   parentNavigatorKey: rootNavigatorKey,
-                  // TODO: Replace with StatsPage when created (Task 18)
-                  builder: (context, state) => Scaffold(
-                    appBar: AppBar(title: const Text('统计')),
-                    body: const Center(child: CircularProgressIndicator()),
-                  ),
+                  builder: (context, state) => const StatsPage(),
                 ),
               ],
             ),
