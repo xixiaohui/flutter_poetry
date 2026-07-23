@@ -2,10 +2,11 @@ import 'package:isar_community/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../core/database/app_database.dart';
-import '../api/search_type.dart';
 import '../models/isar_models.dart';
 import '../models/paginated_response.dart';
 import '../models/poem.dart';
+import '../services/favorites_service.dart';
+import '../services/history_service.dart';
 import '../services/poem_service.dart';
 
 part 'poem_repository.g.dart';
@@ -16,52 +17,70 @@ PoemRepository poemRepository(poemRepositoryRef) => PoemRepository();
 
 final class PoemRepository {
   final PoemService _service = PoemService();
+  final FavoritesService _favoritesService = FavoritesService();
+  final HistoryService _historyService = HistoryService();
 
   /// 获取诗词列表
   Future<PaginatedResponse<Poem>> getPoems({
     int page = 1,
     int pageSize = 20,
     String? dynasty,
-    String? category,
+    String? type,
+    String? author,
   }) async {
     return _service.getPoems(
       page: page,
       pageSize: pageSize,
       dynasty: dynasty,
-      category: category,
+      type: type,
+      author: author,
     );
   }
 
   /// 搜索诗词
   Future<PaginatedResponse<Poem>> searchPoems({
     required String query,
-    SearchType type = SearchType.all,
+    String? type,
     int page = 1,
   }) async {
     return _service.searchPoems(query: query, type: type, page: page);
   }
 
   /// 随机获取诗词
-  Future<Poem> getRandomPoem({String? dynasty, String? category}) async {
-    return _service.getRandomPoem(dynasty: dynasty, category: category);
+  Future<Poem> getRandomPoem({
+    String? author,
+    String? type,
+    String? dynasty,
+    String? char,
+  }) async {
+    return _service.getRandomPoem(
+      author: author,
+      type: type,
+      dynasty: dynasty,
+      char: char,
+    );
   }
 
   /// 获取诗词详情
-  Future<Poem> getPoemById(String id) async {
+  Future<Poem> getPoemById(int id) async {
     return _service.getPoemById(id);
   }
 
   /// 按作者获取诗词
   Future<PaginatedResponse<Poem>> getPoemsByAuthor(
-    String authorId, {
+    String authorName, {
     int page = 1,
     int pageSize = 20,
   }) async {
-    return _service.getPoemsByAuthor(authorId,
+    return _service.getPoemsByAuthor(authorName,
         page: page, pageSize: pageSize);
   }
 
-  /// 添加收藏
+  // ═══════════════════════════════════════════════════════════════
+  // Local favorites (Isar)
+  // ═══════════════════════════════════════════════════════════════
+
+  /// 添加收藏 (本地 Isar)
   Future<void> addFavorite(Poem poem) async {
     final isar = AppDatabase.instance.isar;
     final record = FavoriteRecord()
@@ -78,7 +97,7 @@ final class PoemRepository {
     });
   }
 
-  /// 移除收藏
+  /// 移除收藏 (本地 Isar)
   Future<void> removeFavorite(String poemId) async {
     final isar = AppDatabase.instance.isar;
     await isar.writeTxn(() async {
@@ -100,7 +119,35 @@ final class PoemRepository {
     return isar.favoriteRecords.where().anyId().sortByFavoritedAtDesc().findAll();
   }
 
-  /// 记录阅读
+  // ═══════════════════════════════════════════════════════════════
+  // Server favorites (delegates to FavoritesService)
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Add a poem to server-side favorites (requires auth).
+  Future<void> addServerFavorite({
+    required int poemId,
+    required String poemTitle,
+    String? poemAuthor,
+    String? poemDynasty,
+  }) async {
+    await _favoritesService.addFavorite(
+      poemId: poemId,
+      poemTitle: poemTitle,
+      poemAuthor: poemAuthor,
+      poemDynasty: poemDynasty,
+    );
+  }
+
+  /// Remove a poem from server-side favorites (requires auth).
+  Future<void> removeServerFavorite(int poemId) async {
+    await _favoritesService.removeFavorite(poemId);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Reading history
+  // ═══════════════════════════════════════════════════════════════
+
+  /// 记录阅读 (本地 Isar)
   Future<void> recordReading(Poem poem) async {
     final isar = AppDatabase.instance.isar;
     final existing =
@@ -127,5 +174,20 @@ final class PoemRepository {
   Future<List<ReadingRecord>> getRecentReads({int limit = 10}) async {
     final isar = AppDatabase.instance.isar;
     return isar.readingRecords.where().anyId().sortByReadAtDesc().limit(limit).findAll();
+  }
+
+  /// Record a reading on the server (requires auth).
+  Future<void> recordServerReading({
+    required int poemId,
+    required String poemTitle,
+    String? poemAuthor,
+    String? poemDynasty,
+  }) async {
+    await _historyService.recordReading(
+      poemId: poemId,
+      poemTitle: poemTitle,
+      poemAuthor: poemAuthor,
+      poemDynasty: poemDynasty,
+    );
   }
 }

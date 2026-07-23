@@ -4,7 +4,7 @@ import 'package:isar_community/isar.dart';
 import '../../core/constants/api_constants.dart';
 import '../../core/database/app_database.dart';
 import '../api/gateway_api_client.dart';
-import '../api/search_type.dart';
+import '../models/api_models.dart';
 import '../models/author.dart';
 import '../models/dynasty.dart';
 import '../models/poem.dart';
@@ -16,25 +16,49 @@ final class PoemService {
   final GatewayApiClient _api = GatewayApiClient();
   final Isar _isar = AppDatabase.instance.isar;
 
+  /// Convert flat ApiPoem (author=String?, dynasty=String?) to nested Poem (author=AuthorBrief, dynasty=Dynasty)
+  Poem _apiPoemToPoem(ApiPoem p) => Poem(
+        id: p.id.toString(),
+        title: p.title,
+        content: p.content,
+        author: AuthorBrief(
+          id: '',
+          name: p.author ?? '',
+          dynasty: Dynasty(id: '', name: p.dynasty ?? ''),
+        ),
+        dynasty: Dynasty(id: '', name: p.dynasty ?? ''),
+        category: PoemCategory.misc,
+      );
+
   /// 获取诗词列表 (API first, cache fallback)
   Future<PaginatedResponse<Poem>> getPoems({
     int page = 1,
     int pageSize = ApiConstants.defaultPageSize,
     String? dynasty,
-    String? category,
+    String? type,
+    String? author,
   }) async {
     try {
       final result = await _api.getPoems(
         page: page,
         pageSize: pageSize,
         dynasty: dynasty,
-        category: category,
+        type: type,
+        author: author,
       );
 
-      // 异步缓存到 Isar (不阻塞返回)
-      _cachePoems(result.data);
+      final poems = result.data.map(_apiPoemToPoem).toList();
 
-      return result;
+      // 异步缓存到 Isar (不阻塞返回)
+      _cachePoems(poems);
+
+      return PaginatedResponse(
+        data: poems,
+        total: result.total,
+        page: result.page,
+        pageSize: result.pageSize,
+        hasMore: result.hasMore,
+      );
     } on Exception {
       // API 失败，尝试从缓存读取
       return _getCachedPoems(page: page, pageSize: pageSize);
@@ -44,22 +68,41 @@ final class PoemService {
   /// 搜索诗词
   Future<PaginatedResponse<Poem>> searchPoems({
     required String query,
-    SearchType type = SearchType.all,
+    String? type,
     int page = 1,
     int pageSize = ApiConstants.defaultPageSize,
   }) async {
-    return _api.searchPoems(
-      query: query,
+    final result = await _api.search(
+      q: query,
       type: type,
       page: page,
       pageSize: pageSize,
     );
+
+    return PaginatedResponse(
+      data: result.data.map(_apiPoemToPoem).toList(),
+      total: result.total,
+      page: result.page,
+      pageSize: result.pageSize,
+      hasMore: result.hasMore,
+    );
   }
 
   /// 随机获取一首
-  Future<Poem> getRandomPoem({String? dynasty, String? category}) async {
+  Future<Poem> getRandomPoem({
+    String? author,
+    String? type,
+    String? dynasty,
+    String? char,
+  }) async {
     try {
-      return await _api.getRandomPoem(dynasty: dynasty, category: category);
+      final apiPoem = await _api.getRandomPoem(
+        author: author,
+        type: type,
+        dynasty: dynasty,
+        char: char,
+      );
+      return _apiPoemToPoem(apiPoem);
     } on Exception {
       // 从缓存中随机取一首
       final count = await _isar.poemCaches.count();
@@ -80,6 +123,28 @@ final class PoemService {
         dynasty: Dynasty(id: '', name: cache.dynastyName),
         category: PoemCategory.misc,
       );
+    }
+  }
+
+  /// 获取单首诗词详情 (API-first, cache fallback)
+  Future<Poem> getPoemById(int id) async {
+    try {
+      final apiPoem = await _api.getPoemById(id);
+      final poem = _apiPoemToPoem(apiPoem);
+      // Cache to PoemDetailCache
+      _cacheDetail(poem);
+      return poem;
+    } on Exception {
+      // Try cache fallback
+      final cached = await _isar.poemDetailCaches
+          .where()
+          .poemIdEqualTo(id.toString())
+          .findFirst();
+      if (cached != null) {
+        return Poem.fromJson(
+            jsonDecode(cached.fullJson) as Map<String, dynamic>);
+      }
+      rethrow;
     }
   }
 
@@ -141,25 +206,6 @@ final class PoemService {
     );
   }
 
-  /// 获取单首诗词详情 (API-first, cache fallback)
-  Future<Poem> getPoemById(String id) async {
-    try {
-      final poem = await _api.getPoemById(id);
-      // Cache to PoemDetailCache
-      _cacheDetail(poem);
-      return poem;
-    } on Exception {
-      // Try cache fallback
-      final cached =
-          await _isar.poemDetailCaches.where().poemIdEqualTo(id).findFirst();
-      if (cached != null) {
-        return Poem.fromJson(
-            jsonDecode(cached.fullJson) as Map<String, dynamic>);
-      }
-      rethrow;
-    }
-  }
-
   Future<void> _cacheDetail(Poem poem) async {
     final cache = PoemDetailCache()
       ..poemId = poem.id
@@ -172,10 +218,29 @@ final class PoemService {
 
   /// 按作者获取诗词
   Future<PaginatedResponse<Poem>> getPoemsByAuthor(
-    String authorId, {
+    String authorName, {
     int page = 1,
     int pageSize = 20,
   }) async {
-    return _api.getPoemsByAuthor(authorId, page: page, pageSize: pageSize);
+    try {
+      final result = await _api.getPoems(
+        author: authorName,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final poems = result.data.map(_apiPoemToPoem).toList();
+      _cachePoems(poems);
+
+      return PaginatedResponse(
+        data: poems,
+        total: result.total,
+        page: result.page,
+        pageSize: result.pageSize,
+        hasMore: result.hasMore,
+      );
+    } on Exception {
+      return _getCachedPoems(page: page, pageSize: pageSize);
+    }
   }
 }
