@@ -5,6 +5,7 @@ import '../../features/author/author_page.dart';
 import '../../features/auth/login_page.dart';
 import '../../features/browse/browse_page.dart';
 import '../../features/home/home_page.dart';
+import '../../features/search/search_page.dart';
 import '../../features/splash/splash_page.dart';
 import '../../features/poem_detail/poem_detail_page.dart';
 
@@ -153,11 +154,7 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.search,
               name: 'search',
-              // TODO: Replace with SearchPage when created (Task 14)
-              builder: (context, state) => Scaffold(
-                appBar: AppBar(title: const Text('搜索')),
-                body: const Center(child: CircularProgressIndicator()),
-              ),
+              builder: (context, state) => const SearchPage(),
               routes: [
                 GoRoute(
                   path: 'poem/:id',
