@@ -22,7 +22,11 @@ class AuthRepository extends _$AuthRepository {
 
   Future<void> login({required String email, required String password}) async {
     state = const AsyncLoading();
-    state = AsyncData((await _service.login(email: email, password: password)).user);
+    try {
+      state = AsyncData((await _service.login(email: email, password: password)).user);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
   }
 
   Future<void> register({
@@ -31,16 +35,30 @@ class AuthRepository extends _$AuthRepository {
     String? name,
   }) async {
     state = const AsyncLoading();
-    state = AsyncData((await _service.register(email: email, password: password, name: name)).user);
+    try {
+      state = AsyncData((await _service.register(email: email, password: password, name: name)).user);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
   }
 
   Future<void> logout() async {
-    await _service.logout();
-    state = const AsyncData(null);
+    state = const AsyncLoading();
+    try {
+      await _service.logout();
+      state = const AsyncData(null);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
   }
 
   Future<void> updateProfile({String? name, String? avatar}) async {
-    final updated = await _service.updateProfile(name: name, avatar: avatar);
-    state = AsyncData(updated);
+    state = const AsyncLoading();
+    try {
+      final updated = await _service.updateProfile(name: name, avatar: avatar);
+      state = AsyncData(updated);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
   }
 }
