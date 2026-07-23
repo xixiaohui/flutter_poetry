@@ -7,29 +7,36 @@ abstract final class AppRoutes {
   static const String favorites = '/favorites';
   static const String settings = '/settings';
 
-  // ── 详情页 ──
+  // ── 首页子页 ──
   static const String poemDetail = '/home/poem/:id';
   static String poemById(String id) => '/home/poem/$id';
 
   static const String authorDetail = '/home/author/:id';
   static String authorById(String id) => '/home/author/$id';
 
-  // ── 独立页 ──
-  static const String splash = '/splash';
-  static const String dailyPoem = '/daily-poem';
-  static const String sharePoster = '/share/:poemId';
-  static String shareByPoemId(String id) => '/share/$id';
-  static const String map = '/map';
+  static const String stats = '/home/stats';
 
   // ── 发现子页 ──
-  static const String category = '/discover/category/:id';
-  static String categoryById(String id) => '/discover/category/$id';
-  static const String dynastyTimeline = '/discover/dynasty/:id';
-  static String dynastyById(String id) => '/discover/dynasty/$id';
-  static const String flyFlower = '/discover/fly-flower';
-  static const String chain = '/discover/chain';
+  static const String discoverBrowse = '/discover/browse';
+  static const String discoverDynasty = '/discover/dynasty/:name';
+  static String dynastyByName(String name) => '/discover/dynasty/$name';
+  static const String discoverType = '/discover/type/:name';
+  static String typeByName(String name) => '/discover/type/$name';
+  static const String discoverPoem = '/discover/poem/:id';
+  static const String discoverAuthor = '/discover/author/:id';
+
+  // ── 搜索子页 ──
+  static const String searchPoem = '/search/poem/:id';
+  static const String searchAuthor = '/search/author/:id';
 
   // ── 设置子页 ──
+  static const String settingsProfile = '/settings/profile';
   static const String fontSettings = '/settings/font';
   static const String themeSettings = '/settings/theme';
+
+  // ── 独立页 ──
+  static const String splash = '/splash';
+  static const String login = '/login';
+  static const String aiChat = '/ai-chat';
+  static const String dailyPoem = '/home/daily-poem';
 }

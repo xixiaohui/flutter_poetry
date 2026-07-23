@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'routes.dart';
 import '../../features/author/author_page.dart';
+import '../../features/auth/login_page.dart';
 import '../../features/home/home_page.dart';
 import '../../features/splash/splash_page.dart';
 import '../../features/poem_detail/poem_detail_page.dart';
@@ -18,6 +19,27 @@ final GoRouter appRouter = GoRouter(
       path: '/splash',
       name: 'splash',
       builder: (context, state) => const SplashPage(),
+    ),
+
+    // ── 全屏 Modal 路由 ──
+    GoRoute(
+      path: AppRoutes.login,
+      name: 'login',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const LoginPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.aiChat,
+      name: 'aiChat',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, String>?;
+        // TODO: Replace with AiChatPage when created (Task 17)
+        return Scaffold(
+          appBar: AppBar(title: Text(extra?['title'] ?? 'AI 对话')),
+          body: const Center(child: CircularProgressIndicator()),
+        );
+      },
     ),
 
     // ── ShellRoute: 底部 TabBar 主框架 ──
@@ -54,7 +76,18 @@ final GoRouter appRouter = GoRouter(
                   path: 'daily-poem',
                   name: 'dailyPoem',
                   parentNavigatorKey: rootNavigatorKey,
-                  builder: (context, state) => const _PlaceholderPage(title: '每日一首'),
+                  builder: (context, state) =>
+                      const _PlaceholderPage(title: '每日一首'),
+                ),
+                GoRoute(
+                  path: 'stats',
+                  name: 'stats',
+                  parentNavigatorKey: rootNavigatorKey,
+                  // TODO: Replace with StatsPage when created (Task 18)
+                  builder: (context, state) => Scaffold(
+                    appBar: AppBar(title: const Text('统计')),
+                    body: const Center(child: CircularProgressIndicator()),
+                  ),
                 ),
               ],
             ),
@@ -66,34 +99,60 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.discover,
               name: 'discover',
-              builder: (context, state) =>
-                  const _PlaceholderPage(title: '发现'),
+              // TODO: Replace with DiscoverPage when created (Task 12)
+              builder: (context, state) => Scaffold(
+                appBar: AppBar(title: const Text('发现')),
+                body: const Center(child: CircularProgressIndicator()),
+              ),
               routes: [
                 GoRoute(
-                  path: 'category/:id',
-                  name: 'category',
-                  builder: (context, state) => _PlaceholderPage(
-                    title: '分类 ${state.pathParameters['id']}',
+                  path: 'browse',
+                  name: 'discoverBrowse',
+                  // TODO: Replace with BrowsePage when created (Task 13)
+                  builder: (context, state) => Scaffold(
+                    appBar: AppBar(title: const Text('浏览')),
+                    body: const Center(child: CircularProgressIndicator()),
                   ),
                 ),
                 GoRoute(
-                  path: 'dynasty/:id',
-                  name: 'dynastyTimeline',
-                  builder: (context, state) => _PlaceholderPage(
-                    title: '朝代 ${state.pathParameters['id']}',
+                  path: 'dynasty/:name',
+                  name: 'discoverDynasty',
+                  // TODO: Replace with dynasty page when created
+                  builder: (context, state) => Scaffold(
+                    appBar: AppBar(
+                      title: Text('${state.pathParameters['name']}'),
+                    ),
+                    body:
+                        const Center(child: CircularProgressIndicator()),
                   ),
                 ),
                 GoRoute(
-                  path: 'fly-flower',
-                  name: 'flyFlower',
-                  builder: (context, state) =>
-                      const _PlaceholderPage(title: '飞花令'),
+                  path: 'type/:name',
+                  name: 'discoverType',
+                  // TODO: Replace with type page when created
+                  builder: (context, state) => Scaffold(
+                    appBar: AppBar(
+                      title: Text('${state.pathParameters['name']}'),
+                    ),
+                    body:
+                        const Center(child: CircularProgressIndicator()),
+                  ),
                 ),
                 GoRoute(
-                  path: 'chain',
-                  name: 'chain',
-                  builder: (context, state) =>
-                      const _PlaceholderPage(title: '接龙'),
+                  path: 'author/:id',
+                  name: 'discoverAuthor',
+                  parentNavigatorKey: rootNavigatorKey,
+                  builder: (context, state) => AuthorPage(
+                    authorId: state.pathParameters['id']!,
+                  ),
+                ),
+                GoRoute(
+                  path: 'poem/:id',
+                  name: 'discoverPoem',
+                  parentNavigatorKey: rootNavigatorKey,
+                  builder: (context, state) => PoemDetailPage(
+                    poemId: state.pathParameters['id']!,
+                  ),
                 ),
               ],
             ),
@@ -105,15 +164,26 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.search,
               name: 'search',
-              builder: (context, state) =>
-                  const _PlaceholderPage(title: '搜索'),
+              // TODO: Replace with SearchPage when created (Task 14)
+              builder: (context, state) => Scaffold(
+                appBar: AppBar(title: const Text('搜索')),
+                body: const Center(child: CircularProgressIndicator()),
+              ),
               routes: [
                 GoRoute(
                   path: 'poem/:id',
-                  name: 'searchPoemDetail',
+                  name: 'searchPoem',
                   parentNavigatorKey: rootNavigatorKey,
                   builder: (context, state) => PoemDetailPage(
                     poemId: state.pathParameters['id']!,
+                  ),
+                ),
+                GoRoute(
+                  path: 'author/:id',
+                  name: 'searchAuthor',
+                  parentNavigatorKey: rootNavigatorKey,
+                  builder: (context, state) => AuthorPage(
+                    authorId: state.pathParameters['id']!,
                   ),
                 ),
               ],
@@ -126,8 +196,11 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.favorites,
               name: 'favorites',
-              builder: (context, state) =>
-                  const _PlaceholderPage(title: '收藏'),
+              // TODO: Replace with FavoritesPage when created (Task 15)
+              builder: (context, state) => Scaffold(
+                appBar: AppBar(title: const Text('收藏')),
+                body: const Center(child: CircularProgressIndicator()),
+              ),
             ),
           ],
         ),
@@ -137,9 +210,22 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.settings,
               name: 'settings',
-              builder: (context, state) =>
-                  const _PlaceholderPage(title: '设置'),
+              // TODO: Replace with SettingsPage when created (Task 16)
+              builder: (context, state) => Scaffold(
+                appBar: AppBar(title: const Text('设置')),
+                body: const Center(child: CircularProgressIndicator()),
+              ),
               routes: [
+                GoRoute(
+                  path: 'profile',
+                  name: 'settingsProfile',
+                  // TODO: Replace with profile page when created
+                  builder: (context, state) => Scaffold(
+                    appBar: AppBar(title: const Text('个人资料')),
+                    body:
+                        const Center(child: CircularProgressIndicator()),
+                  ),
+                ),
                 GoRoute(
                   path: 'font',
                   name: 'fontSettings',
@@ -211,7 +297,7 @@ class _MainShell extends StatelessWidget {
   }
 }
 
-/// 占位页面 — 后续 Phase 替换为真实页面
+/// 占位页面 — font/theme 设置页保留使用，其余页面创建后替换
 class _PlaceholderPage extends StatelessWidget {
   final String title;
   const _PlaceholderPage({required this.title});
