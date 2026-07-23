@@ -6,6 +6,7 @@ import '../../features/auth/login_page.dart';
 import '../../features/browse/browse_page.dart';
 import '../../features/home/home_page.dart';
 import '../../features/search/search_page.dart';
+import '../../features/settings/settings_page.dart';
 import '../../features/splash/splash_page.dart';
 import '../../features/poem_detail/poem_detail_page.dart';
 
@@ -196,11 +197,7 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.settings,
               name: 'settings',
-              // TODO: Replace with SettingsPage when created (Task 16)
-              builder: (context, state) => Scaffold(
-                appBar: AppBar(title: const Text('设置')),
-                body: const Center(child: CircularProgressIndicator()),
-              ),
+              builder: (context, state) => const SettingsPage(),
               routes: [
                 GoRoute(
                   path: 'profile',
