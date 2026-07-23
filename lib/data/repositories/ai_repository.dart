@@ -1,23 +1,21 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../models/poem.dart';
+import '../models/api_models.dart';
 import '../services/ai_service.dart';
-
 part 'ai_repository.g.dart';
 
 @riverpod
-AiRepository aiRepository(aiRepositoryRef) => AiRepository();
+AiRepository aiRepository(AiRepositoryRef ref) => AiRepository();
 
 final class AiRepository {
   final AIService _service = AIService();
 
-  /// AI 赏析诗词
-  Future<String> analyzePoem(Poem poem) async {
-    return _service.analyze(poem);
-  }
+  Future<AIAnalysisData> analyzePoem({required String title, required String content, String? author, String? dynasty}) =>
+      _service.analyzePoem(title: title, content: content, author: author, dynasty: dynasty);
 
-  /// 生成配图 prompt
-  Future<String> generateIllustration(Poem poem) async {
-    return _service.generateIllustrationPrompt(poem);
-  }
+  Future<AIAnswer> askQuestion({required String question, String? context}) =>
+      _service.askQuestion(question: question, context: context);
+
+  Future<AITranslation> translatePoem({required String content, String targetLang = 'en'}) =>
+      _service.translatePoem(content: content, targetLang: targetLang);
 }

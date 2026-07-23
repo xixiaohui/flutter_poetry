@@ -1,21 +1,15 @@
 import '../api/gateway_api_client.dart';
-import '../models/poem.dart';
+import '../models/api_models.dart';
 
-/// AI 服务 — 通过 Poetry Gateway 调用 AI
 final class AIService {
   final GatewayApiClient _client = GatewayApiClient();
 
-  /// AI 赏析
-  ///
-  /// 签名保持接收 [Poem] 以兼容上层，内部提取 poemId 调用 Gateway。
-  Future<String> analyze(Poem poem) async {
-    return _client.analyzePoem(poem.id);
-  }
+  Future<AIAnalysisData> analyzePoem({required String title, required String content, String? author, String? dynasty}) =>
+      _client.analyzePoem(title: title, content: content, author: author, dynasty: dynasty);
 
-  /// AI 配图 prompt
-  ///
-  /// 签名保持接收 [Poem] 以兼容上层，内部提取 poemId 调用 Gateway。
-  Future<String> generateIllustrationPrompt(Poem poem) async {
-    return _client.generateIllustration(poem.id);
-  }
+  Future<AIAnswer> askQuestion({required String question, String? context}) =>
+      _client.askQuestion(question: question, context: context);
+
+  Future<AITranslation> translatePoem({required String content, String targetLang = 'en'}) =>
+      _client.translatePoem(content: content, targetLang: targetLang);
 }
