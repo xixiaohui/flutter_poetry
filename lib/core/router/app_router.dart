@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'routes.dart';
 import '../../features/author/author_page.dart';
 import '../../features/auth/login_page.dart';
+import '../../features/browse/browse_page.dart';
 import '../../features/home/home_page.dart';
 import '../../features/splash/splash_page.dart';
 import '../../features/poem_detail/poem_detail_page.dart';
@@ -108,34 +109,22 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: 'browse',
                   name: 'discoverBrowse',
-                  // TODO: Replace with BrowsePage when created (Task 13)
-                  builder: (context, state) => Scaffold(
-                    appBar: AppBar(title: const Text('浏览')),
-                    body: const Center(child: CircularProgressIndicator()),
+                  builder: (context, state) => const BrowsePage(
+                    title: '浏览',
                   ),
                 ),
                 GoRoute(
                   path: 'dynasty/:name',
                   name: 'discoverDynasty',
-                  // TODO: Replace with dynasty page when created
-                  builder: (context, state) => Scaffold(
-                    appBar: AppBar(
-                      title: Text('${state.pathParameters['name']}'),
-                    ),
-                    body:
-                        const Center(child: CircularProgressIndicator()),
+                  builder: (context, state) => BrowsePage(
+                    dynasty: state.pathParameters['name'],
                   ),
                 ),
                 GoRoute(
                   path: 'type/:name',
                   name: 'discoverType',
-                  // TODO: Replace with type page when created
-                  builder: (context, state) => Scaffold(
-                    appBar: AppBar(
-                      title: Text('${state.pathParameters['name']}'),
-                    ),
-                    body:
-                        const Center(child: CircularProgressIndicator()),
+                  builder: (context, state) => BrowsePage(
+                    type: state.pathParameters['name'],
                   ),
                 ),
                 GoRoute(
