@@ -35,11 +35,11 @@ class _SplashPageState extends State<SplashPage>
 
     _loadQuote();
 
-    // 3 秒后跳转首页
+    // 3 秒后跳转首页（Web 上确保路由跳转在帧渲染后执行）
     Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        context.go(AppRoutes.home);
-      }
+      if (!mounted) return;
+      // 使用 go 替换整个导航栈，避免 Web 上返回按钮回到开屏页
+      GoRouter.of(context).go(AppRoutes.home);
     });
   }
 

@@ -1,7 +1,7 @@
 name: flutter_poetry
 description: 沉浸式中国古诗词阅读、收藏、分享、AI赏析平台
 publish_to: 'none'
-version: 2026.07.24+1784861336
+version: 2026.07.24+1784864915
 
 environment:
   sdk: ^3.12.0

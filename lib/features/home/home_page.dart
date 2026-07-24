@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -64,8 +65,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     final homeDataAsync = ref.watch(homePageDataProvider);
 
-    return Scaffold(
-      body: homeDataAsync.when(
+    // Web 平台使用 Scrollbar 改善桌面端滚动体验
+    Widget body = homeDataAsync.when(
         loading: () => CustomScrollView(
           controller: _scrollController,
           slivers: [
@@ -80,8 +81,10 @@ class _HomePageState extends ConsumerState<HomePage> {
           controller: _scrollController,
           slivers: [
             const HomeSliverHeader(),
-            _errorBanner(error.toString()),
-            ..._commonTailSlivers(),
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _fullPageError(error.toString()),
+            ),
           ],
         ),
         data: (data) => CustomScrollView(
@@ -120,8 +123,14 @@ class _HomePageState extends ConsumerState<HomePage> {
               _hotRankings(data.stats.topPoems),
           ],
         ),
-      ),
     );
+
+    // Web: 添加 Scrollbar
+    if (kIsWeb) {
+      body = Scrollbar(controller: _scrollController, child: body);
+    }
+
+    return Scaffold(body: body);
   }
 
   // ── Banner Carousel ─────────────────────────────────────────────
@@ -354,11 +363,23 @@ class _HomePageState extends ConsumerState<HomePage> {
       ),
       const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.sm)),
 
-      // 下拉刷新控件
-      CupertinoSliverRefreshControl(
-        onRefresh: () =>
-            ref.read(homeRecommendationsProvider.notifier).refresh(),
-      ),
+      // Web: 按钮刷新 / 移动端: Cupertino 下拉刷新
+      if (kIsWeb)
+        SliverToBoxAdapter(
+          child: Center(
+            child: TextButton.icon(
+              onPressed: () =>
+                  ref.read(homeRecommendationsProvider.notifier).refresh(),
+              icon: const Icon(Icons.refresh, size: 16),
+              label: const Text('刷新推荐'),
+            ),
+          ),
+        )
+      else
+        CupertinoSliverRefreshControl(
+          onRefresh: () =>
+              ref.read(homeRecommendationsProvider.notifier).refresh(),
+        ),
 
       // 推荐列表（无限滚动）
       const RecommendationsGrid(),
@@ -392,45 +413,38 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Widget _errorBanner(String error) {
+  Widget _fullPageError(String error) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return SliverToBoxAdapter(
+    return Center(
       child: Padding(
-        padding: AppSpacing.pagePadding,
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.error_outline,
-                  size: 18,
-                  color:
-                      isDark ? AppColors.darkInkTertiary : AppColors.inkTertiary,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Text(
-                    '加载失败，请重试',
-                    style: AppTypography.captionRegular(context).copyWith(
-                      color: isDark
-                          ? AppColors.darkInkTertiary
-                          : AppColors.inkTertiary,
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => ref.invalidate(homePageDataProvider),
-                  child: Text(
-                    '重试',
-                    style: AppTypography.captionRegular(context).copyWith(
-                      color: AppColors.accentPrimary,
-                    ),
-                  ),
-                ),
-              ],
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.wifi_off_rounded,
+              size: 56,
+              color: isDark ? AppColors.darkInkTertiary : AppColors.inkTertiary,
             ),
-          ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              '网络连接失败',
+              style: AppTypography.bodyMedium(context),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              '请检查网络后重试',
+              style: AppTypography.captionRegular(context).copyWith(
+                color: isDark ? AppColors.darkInkTertiary : AppColors.inkTertiary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            FilledButton.icon(
+              onPressed: () => ref.invalidate(homePageDataProvider),
+              icon: const Icon(Icons.refresh, size: 18),
+              label: const Text('重试'),
+            ),
+          ],
         ),
       ),
     );
