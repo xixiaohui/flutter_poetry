@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../data/models/api_models.dart';
+import '../../../data/repositories/auth_repository.dart';
 import '../../../shared/widgets/skeleton_loader.dart';
 import '../providers/poem_detail_providers.dart';
 
@@ -59,6 +61,11 @@ class _AiInitialView extends ConsumerWidget {
         Center(
           child: TextButton.icon(
             onPressed: () {
+              final user = ref.read(authRepositoryProvider).valueOrNull;
+              if (user == null) {
+                context.push('/login');
+                return;
+              }
               ref
                   .read(_analysisTriggeredProvider(poemId).notifier)
                   .state = true;
