@@ -7,9 +7,9 @@ part of 'discover_providers.dart';
 // **************************************************************************
 
 String _$discoverPageDataNotifierHash() =>
-    r'5484f14ebf1d93345e6d0e910572a60e44014b68';
+    r'0362b6228fa395c2ec209aa97c5b597cde57acbd';
 
-/// 发现页数据 — 先渲染空 UI，后台静默加载
+/// 发现页数据 — 缓存优先，先显缓存再后台刷新
 ///
 /// Copied from [DiscoverPageDataNotifier].
 @ProviderFor(DiscoverPageDataNotifier)

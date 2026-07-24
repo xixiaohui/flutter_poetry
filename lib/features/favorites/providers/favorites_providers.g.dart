@@ -7,11 +7,9 @@ part of 'favorites_providers.dart';
 // **************************************************************************
 
 String _$favoritesListNotifierHash() =>
-    r'4c6b64df77603b37e368e6ee2ee653ac25affb61';
+    r'4b9f513d036ff980252c52b389509339ac50602d';
 
-/// 收藏列表 — 先渲染空 UI，后台静默加载
-///
-/// Copied from [FavoritesListNotifier].
+/// See also [FavoritesListNotifier].
 @ProviderFor(FavoritesListNotifier)
 final favoritesListNotifierProvider =
     AutoDisposeNotifierProvider<

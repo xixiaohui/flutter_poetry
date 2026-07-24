@@ -5,37 +5,27 @@ import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/favorites_repository.dart';
 part 'favorites_providers.g.dart';
 
-/// 收藏列表 — 先渲染空 UI，后台静默加载
 @riverpod
 class FavoritesListNotifier extends _$FavoritesListNotifier {
   @override
-  List<FavoriteItem>? build() {
-    Future.microtask(() => load());
-    return null;
-  }
+  List<FavoriteItem>? build() => null;
 
   Future<void> load() async {
     try {
       final user = ref.read(authRepositoryProvider).valueOrNull;
       if (user == null) {
-        debugPrint('[Favorites] 未登录，跳过加载');
+        debugPrint('[Favorites] 未登录，跳过');
         state = [];
         return;
       }
-      debugPrint('[Favorites] 开始加载收藏列表...');
-      final favState = ref.read(favoritesRepositoryProvider);
-      final items = favState.valueOrNull ?? [];
-      state = items;
-      debugPrint('[Favorites] ✅ 加载成功 — ${items.length} 条收藏');
+      debugPrint('[Favorites] 开始加载...');
+      ref.read(favoritesRepositoryProvider.notifier);
+      final favs = ref.read(favoritesRepositoryProvider).valueOrNull ?? [];
+      state = favs;
+      debugPrint('[Favorites] ✅ ${favs.length} 条');
     } catch (e, st) {
-      debugPrint('[Favorites] ❌ 加载失败: $e');
-      debugPrint('[Favorites] 堆栈: $st');
+      debugPrint('[Favorites] ❌ $e\n$st');
       state = [];
     }
-  }
-
-  Future<void> refresh() async {
-    state = null;
-    await load();
   }
 }
