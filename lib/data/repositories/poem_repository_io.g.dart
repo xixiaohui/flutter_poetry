@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'poem_repository.dart';
+part of 'poem_repository_io.dart';
 
 // **************************************************************************
 // RiverpodGenerator

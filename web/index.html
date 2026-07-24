@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <!-- SEO -->
+  <meta name="description" content="沉浸式中国古诗词阅读平台 — 品读经典诗词，AI赏析，收藏分享。收录 38 万首诗词与 1.4 万位作者。">
+  <meta name="keywords" content="诗词,古诗词,唐诗,宋词,元曲,李白,杜甫,苏轼,诗词赏析,AI诗词">
+  <meta name="author" content="诗词">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://www.chinesepoetry.space">
+
+  <!-- Open Graph / Social -->
+  <meta property="og:title" content="诗词 — 沉浸式古诗词阅读平台">
+  <meta property="og:description" content="品读经典诗词，AI赏析，收藏分享。收录 38 万首诗词与 1.4 万位作者。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.chinesepoetry.space">
+  <meta property="og:image" content="https://www.chinesepoetry.space/icons/Icon-512.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary">
+
+  <!-- PWA / iOS -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="诗词">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="icon" sizes="192x192" href="icons/Icon-192.png">
+  <link rel="icon" sizes="512x512" href="icons/Icon-512.png">
+
+  <!-- Dark mode support -->
+  <meta name="theme-color" content="#FAFAF5" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1C1C1A" media="(prefers-color-scheme: dark)">
+
+  <!-- Preconnect to API -->
+  <link rel="preconnect" href="https://www.chinesepoetry.space">
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+
+  <title>诗词 — 沉浸式古诗词阅读平台</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Inline loading styles — 国风加载动画 -->
+  <style>
+    body {
+      margin: 0;
+      background-color: #FAFAF5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background-color: #1C1C1A; }
+      .loader-text { color: #F0EDE5; }
+    }
+    .splash {
+      text-align: center;
+      font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    }
+    .splash-logo {
+      width: 80px;
+      height: 80px;
+      background-color: #C9403A;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .splash-logo span {
+      font-size: 40px;
+      color: #fff;
+      font-weight: bold;
+      font-family: "Noto Serif SC", "KaiTi", serif;
+    }
+    .splash-title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #1A1A1A;
+      margin-bottom: 8px;
+    }
+    .splash-sub {
+      font-size: 13px;
+      color: #999;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.9; }
+    }
+    .loader-bar {
+      width: 120px;
+      height: 3px;
+      background: #EDE8DC;
+      border-radius: 2px;
+      margin: 24px auto 0;
+      overflow: hidden;
+    }
+    .loader-bar::after {
+      content: '';
+      display: block;
+      width: 40%;
+      height: 100%;
+      background: #C9403A;
+      border-radius: 2px;
+      animation: loading 1.5s ease-in-out infinite;
+    }
+    @keyframes loading {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
+    }
+  </style>
+</head>
+<body>
+  <div id="splash">
+    <div class="splash">
+      <div class="splash-logo"><span>诗</span></div>
+      <div class="splash-title">诗词</div>
+      <div class="splash-sub">沉浸式古诗词阅读</div>
+      <div class="loader-bar"></div>
+    </div>
+  </div>
+
+  <script>
+    // 移除启动屏
+    window.addEventListener('flutter-first-frame', function() {
+      var splash = document.getElementById('splash');
+      if (splash) {
+        splash.style.transition = 'opacity 0.3s ease-out';
+        splash.style.opacity = '0';
+        setTimeout(function() { splash.remove(); }, 300);
+      }
+    });
+  </script>
+
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
