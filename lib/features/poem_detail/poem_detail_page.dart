@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
@@ -31,7 +32,18 @@ class PoemDetailPage extends ConsumerWidget {
         onRetry: () => ref.invalidate(poemDetailProvider(poemId)),
       ),
       data: (poem) {
+        // Record local reading history (Isar)
         ref.read(poemRepositoryProvider).recordReading(poem);
+        // Record server-side reading history (fire-and-forget, fails silently)
+        ref
+            .read(poemRepositoryProvider)
+            .recordServerReading(
+              poemId: int.parse(poem.id),
+              poemTitle: poem.title,
+              poemAuthor: poem.author.name,
+              poemDynasty: poem.dynasty.name,
+            )
+            .catchError((_) {});
         return _DataView(poem: poem);
       },
     );
@@ -62,6 +74,18 @@ class _DataView extends StatelessWidget {
         title: Text(poem.title,
             style: AppTypography.captionRegular(context).copyWith(color: inkSec)),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.chat_outlined, size: 22, color: inkSec),
+            tooltip: 'AI 问答',
+            onPressed: () {
+              context.pushNamed(
+                'aiChat',
+                extra: {'context': poem.content, 'title': poem.title},
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: AppSpacing.xl3),

@@ -6,7 +6,7 @@ part of 'poem_detail_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$poemDetailHash() => r'55d3b1e1cbf46ad7e70cf032cb91d7d15c5383d7';
+String _$poemDetailHash() => r'0eb35ee47064acd369744b99d2ce181cdb947933';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -157,24 +157,24 @@ class _PoemDetailProviderElement extends AutoDisposeFutureProviderElement<Poem>
   String get poemId => (origin as PoemDetailProvider).poemId;
 }
 
-String _$aiAppreciationHash() => r'5dd6bd3792fd9f26d7f94b8518c04d5b87ea0b96';
+String _$aiAppreciationHash() => r'ee3fda84460d1d309f2f1705dbf6dbaf1a9e74e3';
 
-/// AI 赏析 — 懒触发，不在 build 时自动调用
+/// AI 赏析 — 懒触发，返回结构化 AIAnalysisData
 ///
 /// Copied from [aiAppreciation].
 @ProviderFor(aiAppreciation)
 const aiAppreciationProvider = AiAppreciationFamily();
 
-/// AI 赏析 — 懒触发，不在 build 时自动调用
+/// AI 赏析 — 懒触发，返回结构化 AIAnalysisData
 ///
 /// Copied from [aiAppreciation].
-class AiAppreciationFamily extends Family<AsyncValue<String>> {
-  /// AI 赏析 — 懒触发，不在 build 时自动调用
+class AiAppreciationFamily extends Family<AsyncValue<AIAnalysisData>> {
+  /// AI 赏析 — 懒触发，返回结构化 AIAnalysisData
   ///
   /// Copied from [aiAppreciation].
   const AiAppreciationFamily();
 
-  /// AI 赏析 — 懒触发，不在 build 时自动调用
+  /// AI 赏析 — 懒触发，返回结构化 AIAnalysisData
   ///
   /// Copied from [aiAppreciation].
   AiAppreciationProvider call(String poemId) {
@@ -203,11 +203,11 @@ class AiAppreciationFamily extends Family<AsyncValue<String>> {
   String? get name => r'aiAppreciationProvider';
 }
 
-/// AI 赏析 — 懒触发，不在 build 时自动调用
+/// AI 赏析 — 懒触发，返回结构化 AIAnalysisData
 ///
 /// Copied from [aiAppreciation].
-class AiAppreciationProvider extends AutoDisposeFutureProvider<String> {
-  /// AI 赏析 — 懒触发，不在 build 时自动调用
+class AiAppreciationProvider extends AutoDisposeFutureProvider<AIAnalysisData> {
+  /// AI 赏析 — 懒触发，返回结构化 AIAnalysisData
   ///
   /// Copied from [aiAppreciation].
   AiAppreciationProvider(String poemId)
@@ -238,7 +238,7 @@ class AiAppreciationProvider extends AutoDisposeFutureProvider<String> {
 
   @override
   Override overrideWith(
-    FutureOr<String> Function(AiAppreciationRef provider) create,
+    FutureOr<AIAnalysisData> Function(AiAppreciationRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -255,7 +255,7 @@ class AiAppreciationProvider extends AutoDisposeFutureProvider<String> {
   }
 
   @override
-  AutoDisposeFutureProviderElement<String> createElement() {
+  AutoDisposeFutureProviderElement<AIAnalysisData> createElement() {
     return _AiAppreciationProviderElement(this);
   }
 
@@ -275,13 +275,13 @@ class AiAppreciationProvider extends AutoDisposeFutureProvider<String> {
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin AiAppreciationRef on AutoDisposeFutureProviderRef<String> {
+mixin AiAppreciationRef on AutoDisposeFutureProviderRef<AIAnalysisData> {
   /// The parameter `poemId` of this provider.
   String get poemId;
 }
 
 class _AiAppreciationProviderElement
-    extends AutoDisposeFutureProviderElement<String>
+    extends AutoDisposeFutureProviderElement<AIAnalysisData>
     with AiAppreciationRef {
   _AiAppreciationProviderElement(super.provider);
 
@@ -289,7 +289,140 @@ class _AiAppreciationProviderElement
   String get poemId => (origin as AiAppreciationProvider).poemId;
 }
 
-String _$relatedPoemsHash() => r'd48b822166d74b86e17c894054f6bb2fbedfc842';
+String _$aiTranslationHash() => r'bc86acd460869f533bda4f3581f4bec8a5992eeb';
+
+/// AI 翻译 — 接收 content + targetLang，返回 AITranslation
+///
+/// Copied from [aiTranslation].
+@ProviderFor(aiTranslation)
+const aiTranslationProvider = AiTranslationFamily();
+
+/// AI 翻译 — 接收 content + targetLang，返回 AITranslation
+///
+/// Copied from [aiTranslation].
+class AiTranslationFamily extends Family<AsyncValue<AITranslation>> {
+  /// AI 翻译 — 接收 content + targetLang，返回 AITranslation
+  ///
+  /// Copied from [aiTranslation].
+  const AiTranslationFamily();
+
+  /// AI 翻译 — 接收 content + targetLang，返回 AITranslation
+  ///
+  /// Copied from [aiTranslation].
+  AiTranslationProvider call(({String content, String targetLang}) params) {
+    return AiTranslationProvider(params);
+  }
+
+  @override
+  AiTranslationProvider getProviderOverride(
+    covariant AiTranslationProvider provider,
+  ) {
+    return call(provider.params);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'aiTranslationProvider';
+}
+
+/// AI 翻译 — 接收 content + targetLang，返回 AITranslation
+///
+/// Copied from [aiTranslation].
+class AiTranslationProvider extends AutoDisposeFutureProvider<AITranslation> {
+  /// AI 翻译 — 接收 content + targetLang，返回 AITranslation
+  ///
+  /// Copied from [aiTranslation].
+  AiTranslationProvider(({String content, String targetLang}) params)
+    : this._internal(
+        (ref) => aiTranslation(ref as AiTranslationRef, params),
+        from: aiTranslationProvider,
+        name: r'aiTranslationProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$aiTranslationHash,
+        dependencies: AiTranslationFamily._dependencies,
+        allTransitiveDependencies:
+            AiTranslationFamily._allTransitiveDependencies,
+        params: params,
+      );
+
+  AiTranslationProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.params,
+  }) : super.internal();
+
+  final ({String content, String targetLang}) params;
+
+  @override
+  Override overrideWith(
+    FutureOr<AITranslation> Function(AiTranslationRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: AiTranslationProvider._internal(
+        (ref) => create(ref as AiTranslationRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        params: params,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<AITranslation> createElement() {
+    return _AiTranslationProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is AiTranslationProvider && other.params == params;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, params.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin AiTranslationRef on AutoDisposeFutureProviderRef<AITranslation> {
+  /// The parameter `params` of this provider.
+  ({String content, String targetLang}) get params;
+}
+
+class _AiTranslationProviderElement
+    extends AutoDisposeFutureProviderElement<AITranslation>
+    with AiTranslationRef {
+  _AiTranslationProviderElement(super.provider);
+
+  @override
+  ({String content, String targetLang}) get params =>
+      (origin as AiTranslationProvider).params;
+}
+
+String _$relatedPoemsHash() => r'4d1f801a957eede326c05a8e8e50f6a1305dfb46';
 
 /// 相关推荐
 ///
@@ -421,7 +554,7 @@ class _RelatedPoemsProviderElement
   String get poemId => (origin as RelatedPoemsProvider).poemId;
 }
 
-String _$poemFavoriteHash() => r'd029f15ae5c5f24e84d4a0dfeda2e76f5e3ae005';
+String _$poemFavoriteHash() => r'feb691fcbfc5c19e627f9889c9a753f161e3c3bd';
 
 abstract class _$PoemFavorite extends BuildlessAutoDisposeAsyncNotifier<bool> {
   late final String poemId;
@@ -429,22 +562,22 @@ abstract class _$PoemFavorite extends BuildlessAutoDisposeAsyncNotifier<bool> {
   FutureOr<bool> build(String poemId);
 }
 
-/// 收藏状态 + 切换
+/// 收藏状态 + 切换 (server-side via FavoritesRepository)
 ///
 /// Copied from [PoemFavorite].
 @ProviderFor(PoemFavorite)
 const poemFavoriteProvider = PoemFavoriteFamily();
 
-/// 收藏状态 + 切换
+/// 收藏状态 + 切换 (server-side via FavoritesRepository)
 ///
 /// Copied from [PoemFavorite].
 class PoemFavoriteFamily extends Family<AsyncValue<bool>> {
-  /// 收藏状态 + 切换
+  /// 收藏状态 + 切换 (server-side via FavoritesRepository)
   ///
   /// Copied from [PoemFavorite].
   const PoemFavoriteFamily();
 
-  /// 收藏状态 + 切换
+  /// 收藏状态 + 切换 (server-side via FavoritesRepository)
   ///
   /// Copied from [PoemFavorite].
   PoemFavoriteProvider call(String poemId) {
@@ -473,12 +606,12 @@ class PoemFavoriteFamily extends Family<AsyncValue<bool>> {
   String? get name => r'poemFavoriteProvider';
 }
 
-/// 收藏状态 + 切换
+/// 收藏状态 + 切换 (server-side via FavoritesRepository)
 ///
 /// Copied from [PoemFavorite].
 class PoemFavoriteProvider
     extends AutoDisposeAsyncNotifierProviderImpl<PoemFavorite, bool> {
-  /// 收藏状态 + 切换
+  /// 收藏状态 + 切换 (server-side via FavoritesRepository)
   ///
   /// Copied from [PoemFavorite].
   PoemFavoriteProvider(String poemId)
