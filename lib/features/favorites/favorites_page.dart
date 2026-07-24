@@ -22,10 +22,20 @@ class FavoritesPage extends ConsumerWidget {
 
     // ── 未登录 ──
     if (user == null) {
+      // 有 token 但正在验证 → 轻量 loading
+      final appBar = AppBar(title: const Text('收藏'));
       if (authAsync.isLoading) {
         return Scaffold(
-          appBar: AppBar(title: const Text('收藏')),
-          body: const Center(child: CircularProgressIndicator()),
+          appBar: appBar,
+          body: Column(
+            children: [
+              const SizedBox(height: AppSpacing.xl3),
+              const Center(child: CircularProgressIndicator()),
+              const SizedBox(height: AppSpacing.md),
+              Text('正在验证登录状态...',
+                  style: Theme.of(context).textTheme.bodySmall),
+            ],
+          ),
         );
       }
       return Scaffold(

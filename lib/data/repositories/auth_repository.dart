@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../models/api_models.dart';
@@ -14,8 +16,12 @@ class AuthRepository extends _$AuthRepository {
     await _service.init();
     if (!_service.isLoggedIn) return null;
     try {
-      return await _service.getProfile();
+      return await _service.getProfile().timeout(
+        const Duration(seconds: 8),
+        onTimeout: () => throw TimeoutException('验证登录超时'),
+      );
     } catch (_) {
+      // Token 可能过期或 API 不可用 — 静默降级为未登录
       return null;
     }
   }
