@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
-import '../providers/home_providers.dart';
+import '../../../data/models/api_models.dart';
 
 /// 当前节气横幅
 ///
 /// 展示当前二十四节气名称、描述，使用竹青/青瓷色调。
-class SolarTermBanner extends ConsumerWidget {
-  const SolarTermBanner({super.key});
+/// 接收 [SolarTermData] 来自 real API，若为 null 则隐藏。
+class SolarTermBanner extends StatelessWidget {
+  final SolarTermData? data;
+
+  const SolarTermBanner({super.key, this.data});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final term = ref.watch(currentSolarTermProvider);
+    final term = data;
+    if (term == null) {
+      return const SizedBox.shrink();
+    }
 
     return Padding(
       padding: AppSpacing.pagePadding,
@@ -65,7 +70,7 @@ class SolarTermBanner extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '今日${term.name}',
+                    '今日${term.termName}',
                     style: AppTypography.bodyLarge(context).copyWith(
                       color: isDark
                           ? AppColors.darkInkPrimary
@@ -75,15 +80,29 @@ class SolarTermBanner extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    term.description,
+                    term.termDescription,
                     style: AppTypography.captionRegular(context).copyWith(
                       color: isDark
                           ? AppColors.darkInkSecondary
                           : AppColors.inkSecondary,
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (term.reason.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      term.reason,
+                      style: AppTypography.captionRegular(context).copyWith(
+                        fontSize: 12,
+                        color: isDark
+                            ? AppColors.darkInkTertiary
+                            : AppColors.inkTertiary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ],
               ),
             ),

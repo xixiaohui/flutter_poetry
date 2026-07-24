@@ -1,10 +1,35 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../../core/utils/solar_term_calculator.dart';
-import '../../../data/models/poem.dart';
+
+import '../../../data/api/gateway_api_client.dart';
+import '../../../data/models/api_models.dart';
 import '../../../data/models/isar_models.dart';
+import '../../../data/models/poem.dart';
 import '../../../data/repositories/poem_repository.dart';
 
 part 'home_providers.g.dart';
+
+/// Aggregated home page data — fetches 4 APIs in parallel.
+@riverpod
+Future<({
+  HomeData home,
+  SolarTermData solarTerm,
+  AppConfig config,
+  ReadingStatsData stats,
+})> homePageData(HomePageDataRef ref) async {
+  final api = GatewayApiClient();
+  final results = await Future.wait([
+    api.getHome(),
+    api.getSolarTerm(),
+    api.getConfig(),
+    api.getReadingStats(),
+  ]);
+  return (
+    home: results[0] as HomeData,
+    solarTerm: results[1] as SolarTermData,
+    config: results[2] as AppConfig,
+    stats: results[3] as ReadingStatsData,
+  );
+}
 
 /// 首页推荐诗词 — 分页异步加载
 @riverpod
@@ -43,18 +68,6 @@ class HomeRecommendations extends _$HomeRecommendations {
     _hasMore = result.hasMore;
     state = AsyncData([..._items]);
   }
-}
-
-/// 每日一首
-@riverpod
-Future<Poem> dailyPoem(DailyPoemRef ref) async {
-  return ref.read(poemRepositoryProvider).getRandomPoem();
-}
-
-/// 当前节气
-@riverpod
-({String name, String description}) currentSolarTerm(CurrentSolarTermRef ref) {
-  return SolarTermCalculator.current();
 }
 
 /// 最近阅读

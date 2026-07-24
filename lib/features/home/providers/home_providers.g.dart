@@ -6,46 +6,41 @@ part of 'home_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$dailyPoemHash() => r'4f5920383bfb2e55db6a468f623420383b71737e';
+String _$homePageDataHash() => r'cae674f034438fd9559c552e8c5c6e71867224fc';
 
-/// 每日一首
+/// Aggregated home page data — fetches 4 APIs in parallel.
 ///
-/// Copied from [dailyPoem].
-@ProviderFor(dailyPoem)
-final dailyPoemProvider = AutoDisposeFutureProvider<Poem>.internal(
-  dailyPoem,
-  name: r'dailyPoemProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$dailyPoemHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef DailyPoemRef = AutoDisposeFutureProviderRef<Poem>;
-String _$currentSolarTermHash() => r'8d6aa8ccf8b798fe1a52031457d8ab3c0735d864';
-
-/// 当前节气
-///
-/// Copied from [currentSolarTerm].
-@ProviderFor(currentSolarTerm)
-final currentSolarTermProvider =
-    AutoDisposeProvider<({String name, String description})>.internal(
-      currentSolarTerm,
-      name: r'currentSolarTermProvider',
+/// Copied from [homePageData].
+@ProviderFor(homePageData)
+final homePageDataProvider =
+    AutoDisposeFutureProvider<
+      ({
+        HomeData home,
+        SolarTermData solarTerm,
+        AppConfig config,
+        ReadingStatsData stats,
+      })
+    >.internal(
+      homePageData,
+      name: r'homePageDataProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
           ? null
-          : _$currentSolarTermHash,
+          : _$homePageDataHash,
       dependencies: null,
       allTransitiveDependencies: null,
     );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef CurrentSolarTermRef =
-    AutoDisposeProviderRef<({String name, String description})>;
+typedef HomePageDataRef =
+    AutoDisposeFutureProviderRef<
+      ({
+        HomeData home,
+        SolarTermData solarTerm,
+        AppConfig config,
+        ReadingStatsData stats,
+      })
+    >;
 String _$recentReadsHash() => r'1f9e61e428f2b69f30a1fa65e78620774ee0fdb3';
 
 /// 最近阅读
