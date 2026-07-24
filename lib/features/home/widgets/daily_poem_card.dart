@@ -97,7 +97,7 @@ class DailyPoemCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
-        onTap: () => context.go('/home/poem/${p.id}'),
+        onTap: () => context.push('/home/poem/${p.id}', extra: p),
         child: Hero(
           tag: 'daily_poem',
           child: card,

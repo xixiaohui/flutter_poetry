@@ -5,6 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
+import '../../data/models/api_models.dart';
+import '../../data/models/author.dart';
+import '../../data/models/dynasty.dart';
+import '../../data/models/poem.dart';
 import '../../data/repositories/poem_repository.dart';
 import '../../shared/widgets/expandable_section.dart';
 import '../../shared/widgets/skeleton_loader.dart';
@@ -16,37 +20,76 @@ import 'widgets/ai_appreciation_section.dart';
 import 'widgets/related_poems_section.dart';
 
 /// 诗词详情页 — 核心阅读体验
+///
+/// [poemId] 为必传的诗词 ID，用于 API 加载详情。
+/// [seed] 为可选的预加载数据——从列表页带入，API 失败时作为降级展示。
 class PoemDetailPage extends ConsumerWidget {
   final String poemId;
+  final dynamic seed;
 
-  const PoemDetailPage({super.key, required this.poemId});
+  const PoemDetailPage({super.key, required this.poemId, this.seed});
+
+  Poem? get _seedPoem {
+    final s = seed;
+    if (s == null) return null;
+    if (s is Poem) return s;
+    if (s is ApiPoem) {
+      return Poem(
+        id: s.id.toString(), title: s.title, content: s.content,
+        author: AuthorBrief(id: '', name: s.author ?? '', dynasty: Dynasty(id: '', name: s.dynasty ?? '')),
+        dynasty: Dynasty(id: '', name: s.dynasty ?? ''), category: PoemCategory.misc,
+      );
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final seedPoem = _seedPoem;
+
+    // 有 seed 直接展示，后台静默尝试 API
+    if (seedPoem != null) {
+      ref.watch(poemDetailProvider(poemId));
+    }
+
     final detailAsync = ref.watch(poemDetailProvider(poemId));
 
     return detailAsync.when(
-      loading: () => const _DetailSkeleton(),
-      error: (error, _) => _ErrorView(
-        message: error.toString(),
-        onRetry: () => ref.invalidate(poemDetailProvider(poemId)),
-      ),
+      loading: () {
+        if (seedPoem != null) {
+          _record(poem: seedPoem, ref: ref);
+          return _DataView(poem: seedPoem);
+        }
+        return const _DetailSkeleton();
+      },
+      error: (error, _) {
+        if (seedPoem != null) {
+          _record(poem: seedPoem, ref: ref);
+          return _DataView(poem: seedPoem);
+        }
+        return _ErrorView(
+          message: error.toString(),
+          onRetry: () => ref.invalidate(poemDetailProvider(poemId)),
+        );
+      },
       data: (poem) {
-        // Record local reading history (Isar)
-        ref.read(poemRepositoryProvider).recordReading(poem);
-        // Record server-side reading history (fire-and-forget, fails silently)
-        ref
-            .read(poemRepositoryProvider)
-            .recordServerReading(
-              poemId: int.parse(poem.id),
-              poemTitle: poem.title,
-              poemAuthor: poem.author.name,
-              poemDynasty: poem.dynasty.name,
-            )
-            .catchError((_) {});
+        _record(poem: poem, ref: ref);
         return _DataView(poem: poem);
       },
     );
+  }
+
+  void _record({required Poem poem, required WidgetRef ref}) {
+    ref.read(poemRepositoryProvider).recordReading(poem);
+    ref
+        .read(poemRepositoryProvider)
+        .recordServerReading(
+          poemId: int.parse(poem.id),
+          poemTitle: poem.title,
+          poemAuthor: poem.author.name,
+          poemDynasty: poem.dynasty.name,
+        )
+        .catchError((_) {});
   }
 }
 

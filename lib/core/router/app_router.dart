@@ -61,7 +61,7 @@ final GoRouter appRouter = GoRouter(
                   path: 'poem/:id',
                   name: 'poemDetail',
                   parentNavigatorKey: rootNavigatorKey,
-                  builder: (context, state) => PoemDetailPage(
+                  builder: (context, state) => PoemDetailPage(seed: state.extra,
                     poemId: state.pathParameters['id']!,
                   ),
                 ),
@@ -135,7 +135,7 @@ final GoRouter appRouter = GoRouter(
                   path: 'poem/:id',
                   name: 'discoverPoem',
                   parentNavigatorKey: rootNavigatorKey,
-                  builder: (context, state) => PoemDetailPage(
+                  builder: (context, state) => PoemDetailPage(seed: state.extra,
                     poemId: state.pathParameters['id']!,
                   ),
                 ),
@@ -155,7 +155,7 @@ final GoRouter appRouter = GoRouter(
                   path: 'poem/:id',
                   name: 'searchPoem',
                   parentNavigatorKey: rootNavigatorKey,
-                  builder: (context, state) => PoemDetailPage(
+                  builder: (context, state) => PoemDetailPage(seed: state.extra,
                     poemId: state.pathParameters['id']!,
                   ),
                 ),

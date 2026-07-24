@@ -97,7 +97,7 @@ class _BrowsePageState extends ConsumerState<BrowsePage> {
                 ),
                 child: PoetryCard(
                   poem: _toPoem(poem),
-                  onTap: () => context.push('/discover/poem/${poem.id}'),
+                  onTap: () => context.push('/discover/poem/${poem.id}', extra: poem),
                 ),
               );
             },

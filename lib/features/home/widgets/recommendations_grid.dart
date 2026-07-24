@@ -81,7 +81,7 @@ class RecommendationsGrid extends ConsumerWidget {
                 child: PoetryCard(
                   poem: poem,
                   heroTag: 'poem_${poem.id}',
-                  onTap: () => context.go('/home/poem/${poem.id}'),
+                  onTap: () => context.push('/home/poem/${poem.id}', extra: poem),
                 ),
               );
             },

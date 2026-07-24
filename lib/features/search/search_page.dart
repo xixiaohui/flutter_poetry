@@ -201,7 +201,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               padding: const EdgeInsets.only(bottom: AppSpacing.sm),
               child: PoetryCard(
                 poem: _toPoem(poem),
-                onTap: () => context.push('/search/poem/${poem.id}'),
+                onTap: () => context.push('/search/poem/${poem.id}', extra: poem),
               ),
             );
           },
