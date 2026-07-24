@@ -30,55 +30,63 @@ class PoemActionBar extends ConsumerWidget {
     final isFav = favState.valueOrNull?.any((f) => f.poemId == poemIdInt) ?? false;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           // 收藏按钮 (server-side)
-          _ActionButton(
-            icon: isFav ? Icons.bookmark : Icons.bookmark_outline,
-            color: isFav ? AppColors.accentPrimary : iconColor,
-            label: '收藏',
-            onTap: () {
-              HapticFeedback.mediumImpact();
-              _handleFavorite(context, ref, poemIdInt);
-            },
+          Flexible(
+            child: _ActionButton(
+              icon: isFav ? Icons.bookmark : Icons.bookmark_outline,
+              color: isFav ? AppColors.accentPrimary : iconColor,
+              label: '收藏',
+              onTap: () {
+                HapticFeedback.mediumImpact();
+                _handleFavorite(context, ref, poemIdInt);
+              },
+            ),
           ),
 
           // 翻译按钮
-          _ActionButton(
-            icon: Icons.translate_outlined,
-            color: iconColor,
-            label: '翻译',
-            onTap: () {
-              HapticFeedback.lightImpact();
-              _showTranslationSheet(context, poem.content);
-            },
+          Flexible(
+            child: _ActionButton(
+              icon: Icons.translate_outlined,
+              color: iconColor,
+              label: '翻译',
+              onTap: () {
+                HapticFeedback.lightImpact();
+                _showTranslationSheet(context, poem.content);
+              },
+            ),
           ),
 
           // 分享按钮 (占位)
-          _ActionButton(
-            icon: Icons.share_outlined,
-            color: iconColor,
-            label: '分享',
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('分享功能即将上线')),
-              );
-            },
+          Flexible(
+            child: _ActionButton(
+              icon: Icons.share_outlined,
+              color: iconColor,
+              label: '分享',
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('分享功能即将上线')),
+                );
+              },
+            ),
           ),
 
           // 复制按钮
-          _ActionButton(
-            icon: Icons.copy_outlined,
-            color: iconColor,
-            label: '复制',
-            onTap: () {
-              Clipboard.setData(ClipboardData(text: poem.content));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('已复制')),
-              );
-            },
+          Flexible(
+            child: _ActionButton(
+              icon: Icons.copy_outlined,
+              color: iconColor,
+              label: '复制',
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: poem.content));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('已复制')),
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -379,7 +387,7 @@ class _ActionButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(AppSpacing.buttonRadius),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
+          horizontal: AppSpacing.sm,
           vertical: AppSpacing.sm,
         ),
         child: Column(
