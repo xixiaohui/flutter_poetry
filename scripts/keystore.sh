@@ -8,16 +8,16 @@ if [ ! -f "$KEYSTORE_PATH" ]; then
   keytool -genkeypair \
     -v \
     -keystore $KEYSTORE_PATH \
-    -storepass readmind2026 \
-    -keypass readmind2026 \
+    -storepass chinesepoetry2026 \
+    -keypass chinesepoetry2026 \
     -keyalg RSA \
     -keysize 2048 \
     -validity 10000 \
     -alias upload \
     -dname "CN=Dev, OU=Dev, O=Company, L=City, S=State, C=CN"
 
-  echo "storePassword=readmind2026" > android/key.properties
-  echo "keyPassword=readmind2026" >> android/key.properties
+  echo "storePassword=chinesepoetry2026" > android/key.properties
+  echo "keyPassword=chinesepoetry2026" >> android/key.properties
   echo "keyAlias=upload" >> android/key.properties
   echo "storeFile=upload-keystore.jks" >> android/key.properties
 

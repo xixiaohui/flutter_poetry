@@ -26,14 +26,14 @@ fi
 # 2. 环境变量
 # ======================
 if [ "$ENV" == "dev" ]; then
-  API_URL="https://www.readmeet.club/"
-  APP_NAME="Readmind Dev"
+  API_URL="https://www.chinesepoetry.space/"
+  APP_NAME="诗境"
 elif [ "$ENV" == "test" ]; then
-  API_URL="https://www.readmeet.club/"
-  APP_NAME="Readmind Test"
+  API_URL="https://www.chinesepoetry.space/"
+  APP_NAME="诗境"
 else
-  API_URL="https://www.readmeet.club/"
-  APP_NAME="Readmind"
+  API_URL="https://www.chinesepoetry.space/"
+  APP_NAME="诗境"
 fi
 
 # ======================
