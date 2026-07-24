@@ -74,11 +74,12 @@ class HomeSliverHeader extends StatelessWidget {
                 right: AppSpacing.pageHorizontal,
                 bottom: kToolbarHeight - AppSpacing.md,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+              child: ClipRect(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // 红色印章 Logo
@@ -134,6 +135,7 @@ class HomeSliverHeader extends StatelessWidget {
                     ],
                   ),
                 ],
+                ),
               ),
             ),
           );
