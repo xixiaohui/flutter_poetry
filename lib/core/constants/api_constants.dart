@@ -43,8 +43,8 @@ abstract final class ApiConstants {
   static const String statsReadingEndpoint = '/api/v1/stats/reading';
 
   // ── 超时配置 ──
-  static const Duration connectTimeout = Duration(seconds: 10);
-  static const Duration receiveTimeout = Duration(seconds: 15);
+  static const Duration connectTimeout = Duration(seconds: 20);
+  static const Duration receiveTimeout = Duration(seconds: 30);
 
   // ── 参数化端点 ──
   static String poemDetailEndpoint(int id) => '/api/v1/poems/$id';

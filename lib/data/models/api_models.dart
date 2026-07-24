@@ -58,8 +58,8 @@ class HomeData {
             ApiPoem.fromJson(json['featuredPoem'] as Map<String, dynamic>),
         featuredAuthor:
             HomeAuthor.fromJson(json['featuredAuthor'] as Map<String, dynamic>),
-        totalPoems: json['totalPoems'] as int,
-        totalAuthors: json['totalAuthors'] as int,
+        totalPoems: (json['totalPoems'] as int?) ?? 0,
+        totalAuthors: (json['totalAuthors'] as int?) ?? 0,
       );
 }
 
@@ -83,7 +83,7 @@ class HomeAuthor {
         name: json['name'] as String,
         dynasty: json['dynasty'] as String,
         description: json['description'] as String?,
-        poemCount: json['poemCount'] as int,
+        poemCount: (json['poemCount'] as int?) ?? 0,
       );
 }
 
@@ -194,7 +194,7 @@ class BannerItem {
         imageUrl: json['imageUrl'] as String,
         title: json['title'] as String,
         link: json['link'] as String?,
-        sort: json['sort'] as int,
+        sort: (json['sort'] as int?) ?? 0,
       );
 }
 
@@ -312,8 +312,8 @@ class ReadingStatsData {
 
   factory ReadingStatsData.fromJson(Map<String, dynamic> json) =>
       ReadingStatsData(
-        totalReads: json['totalReads'] as int,
-        totalPoems: json['totalPoems'] as int,
+        totalReads: (json['totalReads'] as int?) ?? 0,
+        totalPoems: (json['totalPoems'] as int?) ?? 0,
         topPoems: (json['topPoems'] as List)
             .map((e) => TopStatItem.fromJson(e as Map<String, dynamic>))
             .toList(),
@@ -334,7 +334,7 @@ class TopStatItem {
 
   factory TopStatItem.fromJson(Map<String, dynamic> json) => TopStatItem(
         label: (json['poemTitle'] ?? json['author'] ?? '') as String,
-        count: json['count'] as int,
+        count: (json['count'] as int?) ?? 0,
       );
 }
 
@@ -346,7 +346,7 @@ class DailyCount {
 
   factory DailyCount.fromJson(Map<String, dynamic> json) => DailyCount(
         date: json['date'] as String,
-        count: json['count'] as int,
+        count: (json['count'] as int?) ?? 0,
       );
 }
 
@@ -471,8 +471,8 @@ class ApiPaginatedResponse<T> {
         data: (json[dataKey] as List)
             .map((e) => fromItem(e as Map<String, dynamic>))
             .toList(),
-        total: json['total'] as int,
-        page: json['page'] as int,
-        pageSize: json['pageSize'] as int,
+        total: (json['total'] as int?) ?? 0,
+        page: (json['page'] as int?) ?? 1,
+        pageSize: (json['pageSize'] as int?) ?? 20,
       );
 }
