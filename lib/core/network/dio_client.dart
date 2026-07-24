@@ -99,14 +99,24 @@ final class _ErrorInterceptor extends Interceptor {
     String? friendlyMessage;
 
     if (err.type == DioExceptionType.badResponse) {
-      // 从响应体中提取业务错误码
+      final statusCode = err.response?.statusCode;
       final data = err.response?.data;
+
+      // 从响应体中提取业务错误码
       if (data is Map<String, dynamic> && data['code'] is String) {
         friendlyMessage = _mapCodeToMessage(data['code'] as String);
       }
 
+      // HTTP 状态码 → 中文提示
+      friendlyMessage ??= switch (statusCode) {
+        400 => '请求参数错误',
+        404 => '内容不存在',
+        500 || 502 || 503 => '服务器繁忙，请稍后重试',
+        _ => null,
+      };
+
       // 401 未授权 → 清除 token + 广播事件
-      if (err.response?.statusCode == 401) {
+      if (statusCode == 401) {
         _handleUnauthorized();
       }
     }
