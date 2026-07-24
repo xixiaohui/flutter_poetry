@@ -1,0 +1,87 @@
+# Codemagic CI/CD 配置
+# 文档: https://docs.codemagic.io/yaml-quick-start/
+# 使用: 推送到 GitHub 后自动触发，或在 Codemagic 后台手动触发
+
+workflows:
+
+  # ═══════════════════════════════════════════════════════════════
+  # iOS 构建工作流
+  # ═══════════════════════════════════════════════════════════════
+  ios-build:
+    name: iOS Release
+    max_build_duration: 60
+    environment:
+      flutter: 3.22.0          # 与 pubspec.yaml 兼容的版本
+      xcode: 16.0
+      cocoapods: default
+    scripts:
+      - name: Install dependencies
+        script: flutter pub get
+      - name: Run code generation
+        script: dart run build_runner build --delete-conflicting-outputs
+      - name: Run tests
+        script: flutter test
+        ignore_failure: true
+      - name: Build iOS IPA
+        script: |
+          flutter build ipa \
+            --release \
+            --export-method app-store \
+            --build-name=1.0.0 \
+            --build-number=$(($(date +%s) - 1784860000))
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - build/ios/archive/Runner.xcarchive
+      - /tmp/xcodebuild_logs/*.log
+
+  # ═══════════════════════════════════════════════════════════════
+  # Android 构建工作流
+  # ═══════════════════════════════════════════════════════════════
+  android-build:
+    name: Android Release
+    max_build_duration: 30
+    environment:
+      flutter: 3.22.0
+    scripts:
+      - name: Install dependencies
+        script: flutter pub get
+      - name: Run code generation
+        script: dart run build_runner build --delete-conflicting-outputs
+      - name: Build Android AAB (Play Store)
+        script: |
+          flutter build appbundle --release
+      - name: Build Android APK
+        script: |
+          flutter build apk --release
+    artifacts:
+      - build/app/outputs/bundle/release/*.aab
+      - build/app/outputs/flutter-apk/*.apk
+
+  # ═══════════════════════════════════════════════════════════════
+  # 全平台构建（打 tag 触发）
+  # ═══════════════════════════════════════════════════════════════
+  release:
+    name: Release Both Platforms
+    max_build_duration: 60
+    environment:
+      flutter: 3.22.0
+      xcode: 16.0
+      cocoapods: default
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: 'v*'
+          include: true
+    scripts:
+      - name: Install dependencies
+        script: flutter pub get
+      - name: Run code generation
+        script: dart run build_runner build --delete-conflicting-outputs
+      - name: Build iOS IPA
+        script: flutter build ipa --release --export-method app-store
+      - name: Build Android AAB
+        script: flutter build appbundle --release
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - build/app/outputs/bundle/release/*.aab
