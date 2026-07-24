@@ -132,7 +132,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget _bannerSection() {
     final configAsync = ref.watch(appConfigProvider);
     return configAsync.when(
-      loading: () => _shimmerBox(160),
+      loading: () => _sliverShimmer(160),
       error: (_, __) => const SliverToBoxAdapter(child: SizedBox.shrink()),
       data: (config) {
         if (config.banners.isEmpty) {
@@ -153,7 +153,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       loading: () => SliverToBoxAdapter(
         child: Column(children: [
           _shimmerStatsRow(),
-          _shimmerBox(120),
+          _boxShimmer(120),
         ]),
       ),
       error: (_, __) => SliverToBoxAdapter(
@@ -194,7 +194,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget _hotRankingsSection() {
     final statsAsync = ref.watch(readingStatsProvider);
     return statsAsync.when(
-      loading: () => _shimmerBox(140),
+      loading: () => _sliverShimmer(140),
       error: (_, __) => const SliverToBoxAdapter(child: SizedBox.shrink()),
       data: (stats) {
         if (stats.topPoems.isEmpty) {
@@ -209,11 +209,18 @@ class _HomePageState extends ConsumerState<HomePage> {
   // Shared Helpers
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _shimmerBox(double height) => SliverToBoxAdapter(
+  /// 骨架屏 — 用于 slivers 列表
+  Widget _sliverShimmer(double height) => SliverToBoxAdapter(
         child: Padding(
           padding: AppSpacing.pagePadding.copyWith(bottom: AppSpacing.md),
           child: SkeletonLoader(height: height, borderRadius: AppSpacing.cardRadius),
         ),
+      );
+
+  /// 骨架屏 — 用于 Column/Row 等 box 布局
+  Widget _boxShimmer(double height) => Padding(
+        padding: AppSpacing.pagePadding.copyWith(bottom: AppSpacing.md),
+        child: SkeletonLoader(height: height, borderRadius: AppSpacing.cardRadius),
       );
 
   Widget _shimmerStatsRow() => Padding(
