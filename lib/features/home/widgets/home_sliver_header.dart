@@ -74,7 +74,9 @@ class HomeSliverHeader extends StatelessWidget {
                 right: AppSpacing.pageHorizontal,
                 bottom: kToolbarHeight - AppSpacing.md,
               ),
-              child: ClipRect(
+              child: OverflowBox(
+                alignment: Alignment.bottomCenter,
+                maxHeight: double.infinity,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.start,
