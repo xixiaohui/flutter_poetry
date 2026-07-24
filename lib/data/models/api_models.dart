@@ -99,16 +99,27 @@ class DiscoverData {
   });
 
   factory DiscoverData.fromJson(Map<String, dynamic> json) => DiscoverData(
-        recentPoems: (json['recentPoems'] as List)
-            .map((e) => ApiPoem.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        dynasties: (json['dynasties'] as List)
-            .map((e) => CategoryItem.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        types: (json['types'] as List)
-            .map((e) => CategoryItem.fromJson(e as Map<String, dynamic>))
-            .toList(),
+        recentPoems: _extractList(json['recentPoems'], ApiPoem.fromJson),
+        dynasties: _extractList(json['dynasties'], CategoryItem.fromJson),
+        types: _extractList(json['types'], CategoryItem.fromJson),
       );
+
+  /// 兼容 API 的两种返回格式：直接数组 [item, ...] 或 {data: [item, ...]}
+  static List<T> _extractList<T>(
+    dynamic value,
+    T Function(Map<String, dynamic>) fromItem,
+  ) {
+    if (value == null) return [];
+    if (value is List) {
+      return value.map((e) => fromItem(e as Map<String, dynamic>)).toList();
+    }
+    if (value is Map<String, dynamic> && value['data'] is List) {
+      return (value['data'] as List)
+          .map((e) => fromItem(e as Map<String, dynamic>))
+          .toList();
+    }
+    return [];
+  }
 }
 
 class DailyQuote {

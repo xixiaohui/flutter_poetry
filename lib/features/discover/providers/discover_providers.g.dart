@@ -6,9 +6,11 @@ part of 'discover_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$discoverPageDataHash() => r'e17afaa57cabb1a24874d4c6442933ad7d73795d';
+String _$discoverPageDataHash() => r'7dc591d0870bd440927ef056f0eae696c598dbea';
 
-/// See also [discoverPageData].
+/// 发现页数据 — 直接调用 Service，不通过中间 provider
+///
+/// Copied from [discoverPageData].
 @ProviderFor(discoverPageData)
 final discoverPageDataProvider =
     AutoDisposeFutureProvider<DiscoverData>.internal(
