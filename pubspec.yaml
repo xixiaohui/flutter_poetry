@@ -46,16 +46,17 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets: []
+  assets:
+    - assets/logo.png
 
 flutter_native_splash:
   color: '#FAFAF5'
-  branding: assets/splash_branding.png
+  image: assets/logo.png
 
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: assets/app_icon.png
+  image_path: assets/logo.png
   adaptive_icon_background: '#FAFAF5'
-  adaptive_icon_foreground: assets/app_icon_foreground.png
+  adaptive_icon_foreground: assets/logo.png
 
