@@ -22,7 +22,7 @@ Future<List<Poem>> authorMasterpieces(AuthorMasterpiecesRef ref, String authorId
   // 按作者名搜索诗词
   final result = await ref.read(poemRepositoryProvider).searchPoems(
     query: author.name,
-    type: SearchType.author,
+    type: SearchType.author.apiValue,
     page: 1,
   );
   return result.data;

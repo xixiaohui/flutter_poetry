@@ -21,6 +21,6 @@ final class AuthorRepository {
 
   /// 获取作者详情
   Future<Author> getAuthorById(String id) async {
-    return _service.getAuthorById(id);
+    return _service.getAuthorById(int.parse(id));
   }
 }
