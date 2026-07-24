@@ -13,31 +13,19 @@ import '../../shared/widgets/poetry_card.dart';
 import '../../shared/widgets/skeleton_loader.dart';
 import 'providers/discover_providers.dart';
 
-/// 发现页 — ConsumerStatefulWidget，initState 触发懒加载
-class DiscoverPage extends ConsumerStatefulWidget {
+/// 发现页 — UI 立即渲染，数据到达后自动替换
+class DiscoverPage extends ConsumerWidget {
   const DiscoverPage({super.key});
-  @override
-  ConsumerState<DiscoverPage> createState() => _DiscoverPageState();
-}
-
-class _DiscoverPageState extends ConsumerState<DiscoverPage> {
-  bool _triggered = false;
 
   @override
-  void initState() {
-    super.initState();
-    // 下一帧触发加载，确保 UI 先渲染
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !_triggered) {
-        _triggered = true;
-        ref.read(discoverPageDataNotifierProvider.notifier).load();
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final data = ref.watch(discoverPageDataNotifierProvider);
+
+    // state 为 null 说明还没加载过 → 触发加载
+    if (data == null) {
+      // scheduleMicrotask 确保 build 先完成再触发
+      Future.microtask(() => ref.read(discoverPageDataNotifierProvider.notifier).load());
+    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('发现')),
@@ -76,17 +64,15 @@ class _DiscoverPageState extends ConsumerState<DiscoverPage> {
 
   Widget _chipSkeletons(int count) => Padding(
     padding: AppSpacing.pagePadding,
-    child: Wrap(
-      spacing: AppSpacing.sm, runSpacing: AppSpacing.sm,
+    child: Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.sm,
       children: List.generate(count, (_) => SizedBox(width: 80, height: 32,
-          child: SkeletonLoader(width: 80, height: 32, borderRadius: 16))),
-    ),
+          child: SkeletonLoader(width: 80, height: 32, borderRadius: 16)))),
   );
 
   Widget _poemSkeletons(int count) => Padding(
     padding: AppSpacing.pagePadding,
-    child: Column(children: List.generate(count, (_) =>
-        const Padding(padding: EdgeInsets.only(bottom: AppSpacing.sm),
+    child: Column(children: List.generate(count,
+        (_) => const Padding(padding: EdgeInsets.only(bottom: AppSpacing.sm),
             child: SkeletonLoader(height: 80, borderRadius: 12)))),
   );
 
