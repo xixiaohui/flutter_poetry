@@ -4,6 +4,8 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/router/routes.dart';
+import '../../data/api/gateway_api_client.dart';
+import '../../data/models/api_models.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -16,6 +18,7 @@ class _SplashPageState extends State<SplashPage>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fadeIn;
+  DailyQuote? _quote;
 
   @override
   void initState() {
@@ -30,12 +33,27 @@ class _SplashPageState extends State<SplashPage>
     );
     _controller.forward();
 
-    // 2 秒后跳转首页
-    Future.delayed(const Duration(seconds: 2), () {
+    _loadQuote();
+
+    // 3 秒后跳转首页
+    Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         context.go(AppRoutes.home);
       }
     });
+  }
+
+  Future<void> _loadQuote() async {
+    try {
+      final quote = await GatewayApiClient().getQuote();
+      if (mounted) {
+        setState(() {
+          _quote = quote;
+        });
+      }
+    } catch (_) {
+      // Silently ignore — splash should proceed even if quote fails.
+    }
   }
 
   @override
@@ -79,6 +97,19 @@ class _SplashPageState extends State<SplashPage>
                 '诗词',
                 style: AppTypography.displayLarge(context),
               ),
+              if (_quote != null) ...[
+                const SizedBox(height: AppSpacing.lg),
+                Text(
+                  _quote!.content,
+                  style: AppTypography.displayMedium(context),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  '—— ${_quote!.author}《${_quote!.source}》',
+                  style: AppTypography.captionRegular(context),
+                ),
+              ],
               const SizedBox(height: AppSpacing.sm),
               Text(
                 '沉浸式古诗词阅读',
