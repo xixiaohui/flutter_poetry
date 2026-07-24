@@ -160,7 +160,7 @@ class _AuthorDetailProviderElement
 }
 
 String _$authorMasterpiecesHash() =>
-    r'fb17c85603b6389ff4324028f0812235bd4497de';
+    r'2ae086731b7e5ecdea9dbed156689e82d1d57e33';
 
 /// 作者代表作
 ///

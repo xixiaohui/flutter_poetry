@@ -6,41 +6,44 @@ part of 'home_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$homePageDataHash() => r'cae674f034438fd9559c552e8c5c6e71867224fc';
+String _$homeDataHash() => r'17a6320b9fdf610ab8f466a724b45f7fd270223e';
 
-/// Aggregated home page data — fetches 4 APIs in parallel.
+/// 首页聚合数据 — 独立 provider，渐进渲染
 ///
-/// Copied from [homePageData].
-@ProviderFor(homePageData)
-final homePageDataProvider =
-    AutoDisposeFutureProvider<
-      ({
-        HomeData home,
-        SolarTermData solarTerm,
-        AppConfig config,
-        ReadingStatsData stats,
-      })
-    >.internal(
-      homePageData,
-      name: r'homePageDataProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$homePageDataHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+/// Copied from [homeData].
+@ProviderFor(homeData)
+final homeDataProvider = AutoDisposeFutureProvider<HomeData>.internal(
+  homeData,
+  name: r'homeDataProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$homeDataHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef HomePageDataRef =
-    AutoDisposeFutureProviderRef<
-      ({
-        HomeData home,
-        SolarTermData solarTerm,
-        AppConfig config,
-        ReadingStatsData stats,
-      })
-    >;
+typedef HomeDataRef = AutoDisposeFutureProviderRef<HomeData>;
+String _$solarTermHash() => r'086795fb24da47493e81677f8d031ff988874d5a';
+
+/// 节气推荐 — 独立 provider
+///
+/// Copied from [solarTerm].
+@ProviderFor(solarTerm)
+final solarTermProvider = AutoDisposeFutureProvider<SolarTermData>.internal(
+  solarTerm,
+  name: r'solarTermProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$solarTermHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef SolarTermRef = AutoDisposeFutureProviderRef<SolarTermData>;
 String _$recentReadsHash() => r'1f9e61e428f2b69f30a1fa65e78620774ee0fdb3';
 
 /// 最近阅读

@@ -8,6 +8,8 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../data/models/api_models.dart';
+import '../../data/repositories/config_repository.dart';
+import '../../data/repositories/stats_repository.dart';
 import '../../shared/widgets/skeleton_loader.dart';
 import 'providers/home_providers.dart';
 import 'widgets/daily_poem_card.dart';
@@ -16,17 +18,16 @@ import 'widgets/recent_reads_shelf.dart';
 import 'widgets/recommendations_grid.dart';
 import 'widgets/solar_term_banner.dart';
 
-/// 首页 — CustomScrollView 编排所有内容区块
+/// 首页 — 独立 Provider 渐进渲染
 ///
-/// Sliver 顺序：
-/// 1. 可折叠大标题
-/// 2. Banner 轮播（来自 real API config）
-/// 3. 数据摘要行（总诗词数 / 总作者数）
-/// 4. 每日诗词卡片（来自 real API home.featuredPoem）
-/// 5. 节气横幅（来自 real API solar-term）
-/// 6. 最近阅读横滑书架
-/// 7. 热门排行（来自 real API stats）
-/// 8. 推荐诗词无限列表（含下拉刷新和无限滚动）
+/// 每个区块独立加载，互不阻塞：
+/// 1. 可折叠大标题（始终显示）
+/// 2. Banner 轮播 → configRepository
+/// 3. 数据摘要 + 每日诗词 → homeData
+/// 4. 节气横幅 → solarTerm
+/// 5. 最近阅读 → Isar 本地
+/// 6. 热门排行 → readingStats
+/// 7. 推荐列表 → HomeRecommendations
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -55,7 +56,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     if (!_scrollController.hasClients) return;
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
-    // 滚动到 80% 时加载更多推荐
     if (maxScroll > 0 && currentScroll >= maxScroll * 0.8) {
       ref.read(homeRecommendationsProvider.notifier).loadMore();
     }
@@ -63,69 +63,61 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final homeDataAsync = ref.watch(homePageDataProvider);
+    Widget body = CustomScrollView(
+      controller: _scrollController,
+      slivers: [
+        // 1. 标题 — 始终显示
+        const HomeSliverHeader(),
 
-    // Web 平台使用 Scrollbar 改善桌面端滚动体验
-    Widget body = homeDataAsync.when(
-        loading: () => CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            const HomeSliverHeader(),
-            _loadingBanner(),
-            _loadingDailyPoem(),
-            _loadingSolarTerm(),
-            ..._commonTailSlivers(),
-          ],
+        // 2. Banner 轮播 — 独立加载
+        _bannerSection(),
+
+        // 3. 数据摘要 + 每日诗词 — 共享 homeData
+        _homeDataSection(),
+
+        // 4. 节气横幅 — 独立加载
+        _solarTermSection(),
+
+        // 5. 最近阅读 — 独立加载
+        const SliverToBoxAdapter(child: RecentReadsShelf()),
+        const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+
+        // 6. 热门排行 — 独立加载
+        _hotRankingsSection(),
+
+        // 7. 推荐标题
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: AppSpacing.pagePadding,
+            child: Text('推荐', style: AppTypography.bodyMedium(context)),
+          ),
         ),
-        error: (error, stack) => CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            const HomeSliverHeader(),
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: _fullPageError(error.toString()),
+        const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.sm)),
+
+        // 下拉刷新
+        if (kIsWeb)
+          SliverToBoxAdapter(
+            child: Center(
+              child: TextButton.icon(
+                onPressed: () => ref.read(homeRecommendationsProvider.notifier).refresh(),
+                icon: const Icon(Icons.refresh, size: 16),
+                label: const Text('刷新推荐'),
+              ),
             ),
-          ],
-        ),
-        data: (data) => CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            const HomeSliverHeader(),
+          )
+        else
+          CupertinoSliverRefreshControl(
+            onRefresh: () => ref.read(homeRecommendationsProvider.notifier).refresh(),
+          ),
 
-            // 2. Banner 轮播
-            if (data.config.banners.isNotEmpty)
-              _bannerCarousel(data.config.banners),
+        // 推荐列表
+        const RecommendationsGrid(),
 
-            // 3. 数据摘要行
-            _statsSummaryRow(data.home),
-
-            // 4. 每日诗词卡片
-            SliverToBoxAdapter(
-              child: DailyPoemCard(poem: data.home.featuredPoem),
-            ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: AppSpacing.md),
-            ),
-
-            // 5. 节气横幅
-            SliverToBoxAdapter(
-              child: SolarTermBanner(data: data.solarTerm),
-            ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: AppSpacing.md),
-            ),
-
-            // 6. 最近阅读横滑书架
-            ..._commonTailSlivers(),
-
-            // 7. 热门排行
-            if (data.stats.topPoems.isNotEmpty)
-              _hotRankings(data.stats.topPoems),
-          ],
-        ),
+        // 底部安全区
+        const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xl2)),
+      ],
     );
 
-    // Web: 添加 Scrollbar
     if (kIsWeb) {
       body = Scrollbar(controller: _scrollController, child: body);
     }
@@ -133,7 +125,136 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(body: body);
   }
 
-  // ── Banner Carousel ─────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════
+  // Banner Section
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _bannerSection() {
+    final configAsync = ref.watch(appConfigProvider);
+    return configAsync.when(
+      loading: () => _shimmerBox(160),
+      error: (_, __) => const SliverToBoxAdapter(child: SizedBox.shrink()),
+      data: (config) {
+        if (config.banners.isEmpty) {
+          return const SliverToBoxAdapter(child: SizedBox.shrink());
+        }
+        return _bannerCarousel(config.banners);
+      },
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Home Data Section (stats row + daily poem)
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _homeDataSection() {
+    final homeAsync = ref.watch(homeDataProvider);
+    return homeAsync.when(
+      loading: () => SliverToBoxAdapter(
+        child: Column(children: [
+          _shimmerStatsRow(),
+          _shimmerBox(120),
+        ]),
+      ),
+      error: (_, __) => SliverToBoxAdapter(
+        child: _inlineError('首页数据加载失败', () => ref.invalidate(homeDataProvider)),
+      ),
+      data: (home) => SliverToBoxAdapter(
+        child: Column(children: [
+          _statsSummaryRow(home),
+          DailyPoemCard(poem: home.featuredPoem),
+          const SizedBox(height: AppSpacing.md),
+        ]),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Solar Term Section
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _solarTermSection() {
+    final solarAsync = ref.watch(solarTermProvider);
+    return solarAsync.when(
+      loading: () => SliverToBoxAdapter(child: SolarTermBanner()),
+      error: (_, __) => const SliverToBoxAdapter(child: SizedBox.shrink()),
+      data: (data) => SliverToBoxAdapter(
+        child: Column(children: [
+          SolarTermBanner(data: data),
+          const SizedBox(height: AppSpacing.md),
+        ]),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Hot Rankings Section
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _hotRankingsSection() {
+    final statsAsync = ref.watch(readingStatsProvider);
+    return statsAsync.when(
+      loading: () => _shimmerBox(140),
+      error: (_, __) => const SliverToBoxAdapter(child: SizedBox.shrink()),
+      data: (stats) {
+        if (stats.topPoems.isEmpty) {
+          return const SliverToBoxAdapter(child: SizedBox.shrink());
+        }
+        return _hotRankings(stats.topPoems);
+      },
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Shared Helpers
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _shimmerBox(double height) => SliverToBoxAdapter(
+        child: Padding(
+          padding: AppSpacing.pagePadding.copyWith(bottom: AppSpacing.md),
+          child: SkeletonLoader(height: height, borderRadius: AppSpacing.cardRadius),
+        ),
+      );
+
+  Widget _shimmerStatsRow() => Padding(
+        padding: AppSpacing.pagePadding.copyWith(bottom: AppSpacing.md),
+        child: Row(
+          children: [
+            Expanded(child: SkeletonLoader(height: 64, borderRadius: AppSpacing.cardRadius)),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: SkeletonLoader(height: 64, borderRadius: AppSpacing.cardRadius)),
+          ],
+        ),
+      );
+
+  Widget _inlineError(String message, VoidCallback onRetry) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: AppSpacing.pagePadding.copyWith(bottom: AppSpacing.md),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Row(children: [
+            Icon(Icons.error_outline, size: 18,
+                color: isDark ? AppColors.darkInkTertiary : AppColors.inkTertiary),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: Text(message,
+                style: AppTypography.captionRegular(context).copyWith(
+                    color: isDark ? AppColors.darkInkTertiary : AppColors.inkTertiary))),
+            GestureDetector(
+              onTap: onRetry,
+              child: Text('重试', style: AppTypography.captionRegular(context)
+                  .copyWith(color: AppColors.accentPrimary)),
+            ),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Banner Carousel
+  // ═══════════════════════════════════════════════════════════════
 
   Widget _bannerCarousel(List<BannerItem> banners) {
     final sorted = [...banners]..sort((a, b) => a.sort.compareTo(b.sort));
@@ -170,32 +291,19 @@ class _HomePageState extends ConsumerState<HomePage> {
                         child: const Icon(Icons.image_not_supported_outlined),
                       ),
                     ),
-                    // Title overlay
                     Positioned(
-                      left: 12,
-                      right: 12,
-                      bottom: 12,
+                      left: 12, right: 12, bottom: 12,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.sm,
-                          vertical: AppSpacing.xs,
-                        ),
+                            horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.45),
-                          borderRadius: BorderRadius.circular(
-                            AppSpacing.buttonRadius,
-                          ),
+                          borderRadius: BorderRadius.circular(AppSpacing.buttonRadius),
                         ),
-                        child: Text(
-                          banner.title,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        child: Text(banner.title,
+                          style: const TextStyle(color: Colors.white, fontSize: 13,
+                              fontWeight: FontWeight.w500),
+                          maxLines: 1, overflow: TextOverflow.ellipsis),
                       ),
                     ),
                   ],
@@ -208,251 +316,97 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  // ── Stats Summary Row ───────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════
+  // Stats Summary Row
+  // ═══════════════════════════════════════════════════════════════
 
   Widget _statsSummaryRow(HomeData home) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: AppSpacing.pagePadding,
-        child: Row(
-          children: [
-            Expanded(
-              child: _StatCard(
-                label: '首诗词',
-                value: _formatNumber(home.totalPoems),
-                isDark: isDark,
-              ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: _StatCard(
-                label: '位作者',
-                value: _formatNumber(home.totalAuthors),
-                isDark: isDark,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ── Hot Rankings ────────────────────────────────────────────────
-
-  Widget _hotRankings(List<TopStatItem> topPoems) {
-    final items = topPoems.take(5).toList();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return SliverToBoxAdapter(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: AppSpacing.pagePadding.copyWith(bottom: AppSpacing.md),
+      child: Row(
         children: [
-          Padding(
-            padding: AppSpacing.pagePadding,
-            child: Text(
-              '热门排行',
-              style: AppTypography.bodyMedium(context),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          SizedBox(
-            height: 120,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.pageHorizontal,
-              ),
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                final item = items[index];
-                return Padding(
-                  padding: const EdgeInsets.only(right: AppSpacing.sm),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: Container(
-                      width: 140,
-                      padding: const EdgeInsets.all(AppSpacing.sm),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? AppColors.darkSurfaceSecondary
-                            : AppColors.surfaceSecondary,
-                        borderRadius:
-                            BorderRadius.circular(AppSpacing.buttonRadius),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            children: [
-                              // Rank badge
-                              Container(
-                                width: 20,
-                                height: 20,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: index < 3
-                                      ? AppColors.accentPrimary
-                                      : AppColors.inkTertiary,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  '${index + 1}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: AppSpacing.xs),
-                              Expanded(
-                                child: Text(
-                                  item.label,
-                                  style: AppTypography.captionRegular(context)
-                                      .copyWith(fontSize: 13),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          Text(
-                            '${item.count} 次阅读',
-                            style: AppTypography.captionRegular(context)
-                                .copyWith(
-                              fontSize: 11,
-                              color: isDark
-                                  ? AppColors.darkInkTertiary
-                                  : AppColors.inkTertiary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
+          Expanded(child: _StatCard(label: '首诗词', value: _formatNumber(home.totalPoems))),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(child: _StatCard(label: '位作者', value: _formatNumber(home.totalAuthors))),
         ],
       ),
     );
   }
 
-  // ── Common Tail Slivers ─────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════
+  // Hot Rankings
+  // ═══════════════════════════════════════════════════════════════
 
-  /// 独立于 API 数据的公共尾部区域（最近阅读 + 推荐列表）
-  List<Widget> _commonTailSlivers() {
-    return [
-      // 最近阅读横滑书架
-      const SliverToBoxAdapter(child: RecentReadsShelf()),
-      const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
-
-      // 推荐标题
-      SliverToBoxAdapter(
-        child: Padding(
-          padding: AppSpacing.pagePadding,
-          child: Text(
-            '推荐',
-            style: AppTypography.bodyMedium(context),
-          ),
-        ),
-      ),
-      const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.sm)),
-
-      // Web: 按钮刷新 / 移动端: Cupertino 下拉刷新
-      if (kIsWeb)
-        SliverToBoxAdapter(
-          child: Center(
-            child: TextButton.icon(
-              onPressed: () =>
-                  ref.read(homeRecommendationsProvider.notifier).refresh(),
-              icon: const Icon(Icons.refresh, size: 16),
-              label: const Text('刷新推荐'),
-            ),
-          ),
-        )
-      else
-        CupertinoSliverRefreshControl(
-          onRefresh: () =>
-              ref.read(homeRecommendationsProvider.notifier).refresh(),
-        ),
-
-      // 推荐列表（无限滚动）
-      const RecommendationsGrid(),
-
-      // 底部安全区
-      const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xl2)),
-    ];
-  }
-
-  // ── Loading / Error States ──────────────────────────────────────
-
-  Widget _loadingBanner() {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: AppSpacing.pagePadding,
-        child: const SkeletonLoader(
-          height: 160,
-          borderRadius: 20,
-        ),
-      ),
-    );
-  }
-
-  Widget _loadingDailyPoem() {
-    return const SliverToBoxAdapter(child: DailyPoemCard());
-  }
-
-  Widget _loadingSolarTerm() {
-    return const SliverToBoxAdapter(
-      child: SolarTermBanner(),
-    );
-  }
-
-  Widget _fullPageError(String error) {
+  Widget _hotRankings(List<TopStatItem> topPoems) {
+    final items = topPoems.take(5).toList();
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.wifi_off_rounded,
-              size: 56,
-              color: isDark ? AppColors.darkInkTertiary : AppColors.inkTertiary,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              '网络连接失败',
-              style: AppTypography.bodyMedium(context),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              '请检查网络后重试',
-              style: AppTypography.captionRegular(context).copyWith(
-                color: isDark ? AppColors.darkInkTertiary : AppColors.inkTertiary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            FilledButton.icon(
-              onPressed: () => ref.invalidate(homePageDataProvider),
-              icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('重试'),
-            ),
-          ],
+    return SliverToBoxAdapter(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Padding(
+          padding: AppSpacing.pagePadding,
+          child: Text('热门排行', style: AppTypography.bodyMedium(context)),
         ),
-      ),
+        const SizedBox(height: AppSpacing.sm),
+        SizedBox(
+          height: 120,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontal),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return Padding(
+                padding: const EdgeInsets.only(right: AppSpacing.sm),
+                child: Container(
+                  width: 140,
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkSurfaceSecondary : AppColors.surfaceSecondary,
+                    borderRadius: BorderRadius.circular(AppSpacing.buttonRadius),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(children: [
+                        Container(
+                          width: 20, height: 20, alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: index < 3 ? AppColors.accentPrimary : AppColors.inkTertiary,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text('${index + 1}',
+                            style: const TextStyle(color: Colors.white, fontSize: 11,
+                                fontWeight: FontWeight.w700)),
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        Expanded(
+                          child: Text(item.label,
+                            style: AppTypography.captionRegular(context).copyWith(fontSize: 13),
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                        ),
+                      ]),
+                      const Spacer(),
+                      Text('${item.count} 次阅读',
+                        style: AppTypography.captionRegular(context).copyWith(
+                          fontSize: 11,
+                          color: isDark ? AppColors.darkInkTertiary : AppColors.inkTertiary)),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+      ]),
     );
   }
 
-  // ── Helpers ─────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════
+  // Formatting
+  // ═══════════════════════════════════════════════════════════════
 
-  /// Format large numbers with commas (e.g., 385000 → "385,000").
   String _formatNumber(int n) {
     if (n < 1000) return n.toString();
     final str = n.toString();
@@ -469,45 +423,26 @@ class _HomePageState extends ConsumerState<HomePage> {
 class _StatCard extends StatelessWidget {
   final String label;
   final String value;
-  final bool isDark;
-
-  const _StatCard({
-    required this.label,
-    required this.value,
-    required this.isDark,
-  });
+  const _StatCard({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm + 2,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm + 2),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurfaceSecondary : AppColors.surfaceSecondary,
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            value,
-            style: AppTypography.displayMedium(context).copyWith(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppColors.accentPrimary,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: AppTypography.captionRegular(context).copyWith(
-              color: isDark ? AppColors.darkInkTertiary : AppColors.inkTertiary,
-            ),
-          ),
-        ],
-      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(value,
+          style: AppTypography.displayMedium(context).copyWith(
+            fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.accentPrimary)),
+        const SizedBox(height: 2),
+        Text(label,
+          style: AppTypography.captionRegular(context).copyWith(
+            color: isDark ? AppColors.darkInkTertiary : AppColors.inkTertiary)),
+      ]),
     );
   }
 }

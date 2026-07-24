@@ -8,27 +8,16 @@ import '../../../data/repositories/poem_repository.dart';
 
 part 'home_providers.g.dart';
 
-/// Aggregated home page data — fetches 4 APIs in parallel.
+/// 首页聚合数据 — 独立 provider，渐进渲染
 @riverpod
-Future<({
-  HomeData home,
-  SolarTermData solarTerm,
-  AppConfig config,
-  ReadingStatsData stats,
-})> homePageData(HomePageDataRef ref) async {
-  final api = GatewayApiClient();
-  final results = await Future.wait([
-    api.getHome(),
-    api.getSolarTerm(),
-    api.getConfig(),
-    api.getReadingStats(),
-  ]);
-  return (
-    home: results[0] as HomeData,
-    solarTerm: results[1] as SolarTermData,
-    config: results[2] as AppConfig,
-    stats: results[3] as ReadingStatsData,
-  );
+Future<HomeData> homeData(HomeDataRef ref) async {
+  return GatewayApiClient().getHome();
+}
+
+/// 节气推荐 — 独立 provider
+@riverpod
+Future<SolarTermData> solarTerm(SolarTermRef ref) async {
+  return GatewayApiClient().getSolarTerm();
 }
 
 /// 首页推荐诗词 — 分页异步加载
