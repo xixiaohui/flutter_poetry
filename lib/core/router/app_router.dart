@@ -9,6 +9,7 @@ import '../../features/search/search_page.dart';
 import '../../features/settings/settings_page.dart';
 import '../../features/splash/splash_page.dart';
 import '../../features/stats/stats_page.dart';
+import '../../features/ai/ai_chat_page.dart';
 import '../../features/poem_detail/poem_detail_page.dart';
 
 /// 全局 Navigator Key
@@ -38,11 +39,7 @@ final GoRouter appRouter = GoRouter(
       parentNavigatorKey: rootNavigatorKey,
       builder: (context, state) {
         final extra = state.extra as Map<String, String>?;
-        // TODO: Replace with AiChatPage when created (Task 17)
-        return Scaffold(
-          appBar: AppBar(title: Text(extra?['title'] ?? 'AI 对话')),
-          body: const Center(child: CircularProgressIndicator()),
-        );
+        return AiChatPage(initialContext: extra?['context'], poemTitle: extra?['title']);
       },
     ),
 
