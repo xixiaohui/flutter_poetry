@@ -23,14 +23,13 @@ class DiscoverPage extends ConsumerWidget {
 
     // state 为 null 说明还没加载过 → 触发加载
     if (data == null) {
-      // scheduleMicrotask 确保 build 先完成再触发
       Future.microtask(() => ref.read(discoverPageDataNotifierProvider.notifier).load());
     }
 
     return Scaffold(
       appBar: AppBar(title: const Text('发现')),
       body: RefreshIndicator(
-        onRefresh: () => ref.read(discoverPageDataNotifierProvider.notifier).load(),
+        onRefresh: () => ref.read(discoverPageDataNotifierProvider.notifier).load(forceApi: true),
         child: ListView(
           padding: const EdgeInsets.only(top: AppSpacing.md),
           children: [

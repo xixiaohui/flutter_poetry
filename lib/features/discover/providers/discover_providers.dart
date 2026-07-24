@@ -16,26 +16,42 @@ class DiscoverPageDataNotifier extends _$DiscoverPageDataNotifier {
   @override
   DiscoverData? build() => null;
 
-  Future<void> load() async {
-    // 1. 先读缓存 — 有则立即渲染
-    final cached = await _readCache();
-    if (cached != null) {
-      state = cached;
-      dev.log(' 📦 缓存命中 — 体裁${cached.types.length} 朝代${cached.dynasties.length} 诗词${cached.recentPoems.length}', name: _tag);
-    }
+  bool _loading = false;
 
-    // 2. 调 API
+  Future<void> load({bool forceApi = false}) async {
+    // 防止并发 load() — Android 上 SharedPreferences 较慢，
+    // build() 可能在 _readCache 完成前再次触发 load()
+    if (_loading) {
+      dev.log(' ⏭ load 跳过 — 正在加载中', name: _tag);
+      return;
+    }
+    _loading = true;
+
     try {
-      dev.log(' 🌐 请求 API...', name: _tag);
-      final data = await DiscoverService().getDiscover();
-      dev.log(' ✅ 成功 — 体裁${data.types.length} 朝代${data.dynasties.length} 诗词${data.recentPoems.length}', name: _tag);
-      state = data;
-      _writeCache(data);
-    } catch (e) {
-      dev.log(' ❌ API 失败: $e', name: _tag);
-      if (cached == null) {
-        state = DiscoverData(recentPoems: [], dynasties: [], types: []);
+      // 1. 先读缓存 — 有则立即渲染（forceApi 模式下跳过缓存读取，避免覆盖已有数据）
+      if (!forceApi) {
+        final cached = await _readCache();
+        if (cached != null && state == null) {
+          state = cached;
+          dev.log(' 📦 缓存命中 — 体裁${cached.types.length} 朝代${cached.dynasties.length} 诗词${cached.recentPoems.length}', name: _tag);
+        }
       }
+
+      // 2. 调 API
+      try {
+        dev.log(' 🌐 请求 API...', name: _tag);
+        final data = await DiscoverService().getDiscover();
+        dev.log(' ✅ 成功 — 体裁${data.types.length} 朝代${data.dynasties.length} 诗词${data.recentPoems.length}', name: _tag);
+        state = data;
+        _writeCache(data);
+      } catch (e) {
+        dev.log(' ❌ API 失败: $e', name: _tag);
+        if (state == null) {
+          state = DiscoverData(recentPoems: [], dynasties: [], types: []);
+        }
+      }
+    } finally {
+      _loading = false;
     }
   }
 }
