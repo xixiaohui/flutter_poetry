@@ -1,5 +1,6 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+import 'dart:developer' as dev;
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../data/models/api_models.dart';
@@ -7,6 +8,7 @@ import '../../../data/services/discover_service.dart';
 part 'discover_providers.g.dart';
 
 const _cacheKey = 'discover_cache';
+const _tag = 'Discover';
 
 /// 发现页数据 — 缓存优先，先显缓存再后台刷新
 @riverpod
@@ -19,18 +21,18 @@ class DiscoverPageDataNotifier extends _$DiscoverPageDataNotifier {
     final cached = await _readCache();
     if (cached != null) {
       state = cached;
-      debugPrint('[Discover] 📦 缓存命中 — 体裁${cached.types.length} 朝代${cached.dynasties.length} 诗词${cached.recentPoems.length}');
+      dev.log(' 📦 缓存命中 — 体裁${cached.types.length} 朝代${cached.dynasties.length} 诗词${cached.recentPoems.length}', name: _tag);
     }
 
     // 2. 调 API
     try {
-      debugPrint('[Discover] 🌐 请求 API...');
+      dev.log(' 🌐 请求 API...', name: _tag);
       final data = await DiscoverService().getDiscover();
-      debugPrint('[Discover] ✅ 成功 — 体裁${data.types.length} 朝代${data.dynasties.length} 诗词${data.recentPoems.length}');
+      dev.log(' ✅ 成功 — 体裁${data.types.length} 朝代${data.dynasties.length} 诗词${data.recentPoems.length}', name: _tag);
       state = data;
       _writeCache(data);
     } catch (e) {
-      debugPrint('[Discover] ❌ API 失败: $e');
+      dev.log(' ❌ API 失败: $e', name: _tag);
       if (cached == null) {
         state = DiscoverData(recentPoems: [], dynasties: [], types: []);
       }
@@ -55,7 +57,7 @@ Future<void> _writeCache(DiscoverData data) async {
   try {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_cacheKey, jsonEncode(_toJson(data)));
-    debugPrint('[Discover] 💾 缓存已更新');
+    dev.log(' 💾 缓存已更新', name: _tag);
   } catch (_) {}
 }
 
