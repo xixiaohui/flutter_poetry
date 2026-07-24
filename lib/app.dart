@@ -41,7 +41,7 @@ class _PoetryAppState extends ConsumerState<PoetryApp> {
     final themeMode = ref.watch(themeModeNotifierProvider);
 
     return MaterialApp.router(
-      title: '诗词',
+      title: '诗境',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),

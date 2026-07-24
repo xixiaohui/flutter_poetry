@@ -94,7 +94,7 @@ class _SplashPageState extends State<SplashPage>
               ),
               const SizedBox(height: AppSpacing.lg),
               Text(
-                '诗词',
+                '诗境',
                 style: AppTypography.displayLarge(context),
               ),
               if (_quote != null) ...[
@@ -112,7 +112,7 @@ class _SplashPageState extends State<SplashPage>
               ],
               const SizedBox(height: AppSpacing.sm),
               Text(
-                '沉浸式古诗词阅读',
+                '品读千年诗词之美',
                 style: AppTypography.captionRegular(context),
               ),
             ],
